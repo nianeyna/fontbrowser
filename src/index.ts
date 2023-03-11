@@ -52,6 +52,18 @@ app.on('activate', () => {
   }
 });
 
+//// realized I didn't really need this, but don't want to lose it in case I want it back
+//// import { app, session } from 'electron';
+//// import { PathLike, readdirSync } from 'fs';
+//// import path from 'path';
+// if (process.platform == 'win32') {
+//   const appDataPath = process.env.APPDATA;
+//   const reactDevToolsPath = '..\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\fmkadmapgofadopljbjfkapdkoienihi';
+//   const extensionPath = path.join(appDataPath, reactDevToolsPath);
+//   const versionPath = readdirSync(extensionPath, {withFileTypes: true}).filter(x => x.isDirectory()).map(y => y.name)[0];
+//   app.whenReady().then(async () => await session.defaultSession.loadExtension(path.join(extensionPath, versionPath)));
+// }
+
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 ipcMain.handle('font-families', async (e): Promise<Map<string, Font[]>> => await getFontFamilies());

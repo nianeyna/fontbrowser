@@ -19,4 +19,5 @@ export const rendererConfig: Configuration = {
       "fs": false
     }
   },
+  devtool: false
 };
