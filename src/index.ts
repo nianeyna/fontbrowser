@@ -54,24 +54,33 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
-ipcMain.handle('font-names', async (e): Promise<string[]> => await getFontNames());
+ipcMain.handle('font-families', async (e): Promise<Map<string, Font[]>> => await getFontFamilies());
+
+class FontFactory implements Font {
+  subfamilyName: string;
+  availableFeatures: string[];
+  constructor(fullName: string, availableFeatures: string[]) {
+    this.subfamilyName = fullName;
+    this.availableFeatures = availableFeatures;
+  }
+}
 
 function getSystemFontFolder(): string {
   const platform = process.platform;
   let folder: string;
   switch (platform) {
-      case 'win32':
-          folder = 'C:/Windows/Fonts';
-          break;
-      case 'darwin':
-          folder = '$HOME/Library/Fonts';
-          break;
-      case 'linux':
-          folder = '/usr/share/fonts';
-          break;
-      default:
-          console.log(platform);
-          folder = '';
+    case 'win32':
+      folder = 'C:/Windows/Fonts';
+      break;
+    case 'darwin':
+      folder = '$HOME/Library/Fonts';
+      break;
+    case 'linux':
+      folder = '/usr/share/fonts';
+      break;
+    default:
+      console.log(platform);
+      folder = '';
   }
   return folder;
 }
@@ -81,25 +90,35 @@ async function getFonts(): Promise<fontkit.Font[]> {
   const folder = getSystemFontFolder();
 
   if (folder) {
-      // not bothering with path.join since glob requires forward slashes anyway
-      const paths = await glob(`${folder}/*.{ttf,otf,woff,woff2}`);
-      await Promise.all(paths.map(async (element) => {
-          try {
-              let font = await fontkit.open(element);
-              fonts.push(font);
-          }
-          catch (e) {
-              console.log(element);
-              console.log(e);
-          }
-      }));
+    // not bothering with path.join since glob requires forward slashes anyway
+    const paths = await glob(`${folder}/*.{ttf,otf,woff,woff2}`);
+    await Promise.all(paths.map(async (element) => {
+      try {
+        let font = await fontkit.open(element);
+        fonts.push(font);
+      }
+      catch (e) {
+        console.log(element);
+        console.log(e);
+      }
+    }));
   }
 
   fonts.sort((a, b) => a.familyName.localeCompare(b.familyName));
   return fonts;
 }
 
-async function getFontNames(): Promise<string[]> {
+async function getFontFamilies(): Promise<Map<string, Font[]>> {
   const fonts = await getFonts();
-  return fonts.map(x => x.fullName);
+  const families: Map<string, Font[]> = new Map();
+  fonts.forEach(element => {
+    if (!families.has(element.familyName)) {
+      families.set(element.familyName, [])
+    }
+    families.get(element.familyName)?.push(new FontFactory(element.subfamilyName, element.availableFeatures));
+  });
+  families.forEach(element => {
+    element.sort((a, b) => a.subfamilyName.localeCompare(b.subfamilyName));
+  });
+  return families;
 }

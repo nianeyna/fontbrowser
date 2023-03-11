@@ -3,5 +3,5 @@
 import { ipcRenderer, contextBridge } from 'electron';
 
 contextBridge.exposeInMainWorld('api', {
-    fontNames: (): Promise<string[]> => ipcRenderer.invoke('font-names')
+    families: (): Promise<Map<string, Font[]>> => ipcRenderer.invoke('font-families')
 });
