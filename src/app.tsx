@@ -12,7 +12,8 @@ declare global {
   const root = createRoot(document.getElementById('root'));
   try {
     const names = await window.api.families();
-    const element = Index(names);
+    const text = 'The Quick Brown Fox Jumped Over The Lazy Dog';
+    const element = Index(names, text);
     root.render(element);
   }
   catch (e) {
@@ -21,7 +22,7 @@ declare global {
   }
 })();
 
-export default function Index(families: Map<string, Font[]>) {
+export default function Index(families: Map<string, Font[]>, text: string) {
   return (
     <div>
       <ul>
@@ -32,11 +33,18 @@ export default function Index(families: Map<string, Font[]>) {
               {family[1].map((font, index) => (
                 <li key={index}>
                   {font.subfamilyName}
+                  <style>
+                    {`@font-face {
+                      font-family: "${font.fullName}";
+                      src: url("font://${font.file}");
+                    }`}
+                  </style>
+                  <div style={{fontFamily: `"${font.fullName}"`}}>{text}</div>
                   <details>
                     <summary>Features</summary>
                     <ul>
                       {font.availableFeatures.map((feature, index) => (
-                      <li key={index}>{feature}</li>
+                        <li key={index}>{feature}</li>
                       ))}
                     </ul>
                   </details>

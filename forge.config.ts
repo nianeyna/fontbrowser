@@ -14,6 +14,7 @@ const config: ForgeConfig = {
   makers: [new MakerSquirrel({}), new MakerZIP({}, ['darwin']), new MakerRpm({}), new MakerDeb({})],
   plugins: [
     new WebpackPlugin({
+      devContentSecurityPolicy: `default-src 'self'; font-src font:; script-src 'self'; style-src 'self' 'unsafe-inline'`,
       mainConfig,
       renderer: {
         config: rendererConfig,
