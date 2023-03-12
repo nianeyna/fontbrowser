@@ -74,7 +74,7 @@ app.whenReady().then(() => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
-ipcMain.handle('font-families', async (e): Promise<Map<string, Font[]>> => await getFontFamilies());
+ipcMain.handle('font-families', async (): Promise<Map<string, Font[]>> => await getFontFamilies());
 
 class FontFactory implements Font {
   file: string;
@@ -118,7 +118,7 @@ async function getFonts(): Promise<[string, fontkit.Font][]> {
     const paths = await glob(`${folder}/*.{ttf,otf,woff,woff2}`);
     await Promise.all(paths.map(async (element) => {
       try {
-        let font = await fontkit.open(element);
+        const font = await fontkit.open(element);
         fonts.push([element, font]);
       }
       catch (e) {

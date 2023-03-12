@@ -6,7 +6,7 @@ import NodePolyfillPlugin from 'node-polyfill-webpack-plugin';
 // // eslint-disable-next-line @typescript-eslint/no-var-requires
 // const ForkTsCheckerWebpackPlugin: typeof IForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
-export const plugins: any[] = [
+export const plugins: NodePolyfillPlugin[] = [
   // new ForkTsCheckerWebpackPlugin({
   //   logger: 'webpack-infrastructure',
   // }),

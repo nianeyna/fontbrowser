@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client';
+import { LoremIpsum } from "lorem-ipsum";
 import pangrams from './resource/pangrams.json';
 
 declare global {
@@ -24,7 +25,7 @@ declare global {
 
   let sampleText: string;
   try {
-    sampleText = pangrams[Math.floor(Math.random() * pangrams.length)];
+    sampleText = loremIpsum();
   }
   catch (e) {
     console.log(e);
@@ -50,6 +51,15 @@ declare global {
     root.render(<div>Problem rendering font list.</div>)
   }
 })();
+
+function pangram(): string {
+  return pangrams[Math.floor(Math.random() * pangrams.length)];
+}
+
+function loremIpsum(): string {
+  const lorem = new LoremIpsum();
+  return lorem.generateParagraphs(1);
+}
 
 export default function Index(families: Map<string, Font[]>, text: string) {
   return (
