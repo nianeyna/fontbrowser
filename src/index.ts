@@ -141,7 +141,8 @@ async function getFontFamilies(): Promise<Map<string, Font[]>> {
     if (!families.has(font.familyName)) {
       families.set(font.familyName, [])
     }
-    families.get(font.familyName)?.push(new FontFactory(filePath, font.fullName, font.subfamilyName, font.availableFeatures));
+    const availableFeatures = [...new Set(font.availableFeatures)]; // remove duplicates
+    families.get(font.familyName)?.push(new FontFactory(filePath, font.fullName, font.subfamilyName, availableFeatures));
   });
   families.forEach(element => {
     element.sort((a, b) => a.subfamilyName.localeCompare(b.subfamilyName));

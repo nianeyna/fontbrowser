@@ -61,38 +61,62 @@ function loremIpsum(): string {
   return lorem.generateParagraphs(1);
 }
 
-export default function Index(families: Map<string, Font[]>, text: string) {
+export default function Index(families: Map<string, Font[]>, sampleText: string) {
+  return Families(Array.from(families.entries()), sampleText);
+}
+
+export function Families(families: [string, Font[]][], sampleText: string) {
+  return <ul>{families.map(family => Family(family, sampleText))}</ul>
+}
+
+export function Family(family: [string, Font[]], sampleText: string) {
+  return (
+    <li key={family[0]}>
+      <h4>{family[0]}</h4>
+      {Subfamilies(family[1], sampleText)}
+    </li>
+  );
+}
+
+export function Subfamilies(fonts: Font[], sampleText: string) {
+  return <ul>{fonts.map(font => Subfamily(font, sampleText))}</ul>
+}
+
+export function Subfamily(font: Font, sampleText: string) {
+  return (
+    <li key={font.fullName}>
+      {font.subfamilyName}
+      {Sample(font.fullName, font.file, sampleText)}
+      {Features(font.availableFeatures)}
+    </li>
+  );
+}
+
+export function Sample(fontName: string, filePath: string, sampleText: string) {
   return (
     <div>
-      <ul>
-        {Array.from(families.entries()).map((family, index) => (
-          <li key={index}>
-            <h4>{family[0]}</h4>
-            <ul>
-              {family[1].map((font, index) => (
-                <li key={index}>
-                  {font.subfamilyName}
-                  <style>
-                    {`@font-face {
-                      font-family: "${font.fullName}";
-                      src: url("font://${font.file}");
-                    }`}
-                  </style>
-                  <div style={{ fontFamily: `"${font.fullName}"` }}>{text}</div>
-                  <details>
-                    <summary>Features</summary>
-                    <ul>
-                      {font.availableFeatures.map((feature, index) => (
-                        <li key={index}>{feature}</li>
-                      ))}
-                    </ul>
-                  </details>
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ul>
+      <style>
+        {`@font-face {
+          font-family: "${fontName}";
+          src: url("font://${filePath}");
+        }`}
+      </style>
+      <div style={{ fontFamily: `"${fontName}"` }}>{sampleText}</div>
     </div>
   );
+}
+
+export function Features(features: string[]) {
+  return (
+    <details>
+      <summary>Features</summary>
+      <ul>
+        {features.map((feature: string) => Feature(feature))}
+      </ul>
+    </details>
+  );
+}
+
+export function Feature(feature: string): JSX.Element {
+  return <li key={feature}>{feature}</li>
 }
