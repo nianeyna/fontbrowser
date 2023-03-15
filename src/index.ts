@@ -76,7 +76,7 @@ app.whenReady().then(() => {
 // code. You can also put them in separate files and import them here.
 ipcMain.handle('font-families', async (): Promise<Map<string, Font[]>> => await getFontFamilies());
 
-class FontFactory implements Font {
+class FontConstructor implements Font {
   file: string;
   fullName: string;
   subfamilyName: string;
@@ -112,7 +112,6 @@ function getSystemFontFolder(): string {
 async function getFonts(): Promise<[string, fontkit.Font][]> {
   const fonts: [string, fontkit.Font][] = [];
   const folder = getSystemFontFolder();
-
   if (folder) {
     // not bothering with path.join since glob requires forward slashes anyway
     const paths = await glob(`${folder}/*.{ttf,otf,woff,woff2}`);
@@ -127,8 +126,6 @@ async function getFonts(): Promise<[string, fontkit.Font][]> {
       }
     }));
   }
-
-  fonts.sort((a, b) => a[1].familyName.localeCompare(b[1].familyName));
   return fonts;
 }
 
@@ -142,7 +139,7 @@ async function getFontFamilies(): Promise<Map<string, Font[]>> {
       families.set(font.familyName, [])
     }
     const availableFeatures = [...new Set(font.availableFeatures)]; // remove duplicates
-    families.get(font.familyName)?.push(new FontFactory(filePath, font.fullName, font.subfamilyName, availableFeatures));
+    families.get(font.familyName)?.push(new FontConstructor(filePath, font.fullName, font.subfamilyName, availableFeatures));
   });
   families.forEach(element => {
     element.sort((a, b) => a.subfamilyName.localeCompare(b.subfamilyName));

@@ -39,7 +39,7 @@ declare global {
 async function getFontFamilies(): Promise<[string, Font[]][]> {
   try {
     const map = await window.api.families();
-    return Array.from(map.entries());
+    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
   }
   catch (e) {
     throw new FontBrowser.FontFamiliesAccessError('Problem getting font details from local system.');

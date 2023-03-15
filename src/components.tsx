@@ -14,11 +14,11 @@ export function SampleTextOptions(props: {selected: FontBrowser.SampleType, onSe
   return (
     <form>
       <label>
-        <input onChange={handleChanged} type={'radio'} name={'sample-type'} value={FontBrowser.SampleType.Pangram} title={'Pangram'} checked={props.selected == FontBrowser.SampleType.Pangram} />
+        <input onChange={handleChanged} type={'radio'} name={'sample-type'} value={FontBrowser.SampleType.Pangram} checked={props.selected == FontBrowser.SampleType.Pangram} />
         Pangram
       </label>
       <label>
-        <input onChange={handleChanged} type={'radio'} name={'sample-type'} value={FontBrowser.SampleType.LoremIpsum} title={'Lorem Ipsum'} checked={props.selected == FontBrowser.SampleType.LoremIpsum} />
+        <input onChange={handleChanged} type={'radio'} name={'sample-type'} value={FontBrowser.SampleType.LoremIpsum} checked={props.selected == FontBrowser.SampleType.LoremIpsum} />
         Lorem Ipsum
       </label>
     </form>
