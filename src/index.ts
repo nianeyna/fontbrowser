@@ -74,7 +74,7 @@ app.whenReady().then(() => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
-ipcMain.handle('font-families', async (): Promise<Map<string, Font[]>> => await getFontFamilies());
+ipcMain.handle('font-families', async (): Promise<[string, Font[]][]> => await getFontFamilies());
 
 class FontConstructor implements Font {
   file: string;
@@ -129,20 +129,30 @@ async function getFonts(): Promise<[string, fontkit.Font][]> {
   return fonts;
 }
 
-async function getFontFamilies(): Promise<Map<string, Font[]>> {
+async function getFontFamilies(): Promise<[string, Font[]][]> {
   const fonts = await getFonts();
-  const families: Map<string, Font[]> = new Map();
+  const familiesMap: Map<string, Font[]> = new Map();
   fonts.forEach(element => {
     const filePath = element[0].replaceAll('\\', '/').trim();
     const font = element[1];
-    if (!families.has(font.familyName)) {
-      families.set(font.familyName, [])
+    if (!familiesMap.has(font.familyName)) {
+      familiesMap.set(font.familyName, [])
     }
     const availableFeatures = [...new Set(font.availableFeatures)]; // remove duplicates
-    families.get(font.familyName)?.push(new FontConstructor(filePath, font.fullName, font.subfamilyName, availableFeatures));
+    familiesMap.get(font.familyName)?.push(new FontConstructor(filePath, font.fullName, font.subfamilyName, availableFeatures));
   });
+  const families = Array.from(familiesMap.entries());
+  families.sort((a, b) => a[0].localeCompare(b[0]));
   families.forEach(element => {
-    element.sort((a, b) => a.subfamilyName.localeCompare(b.subfamilyName));
+    const fonts = element[1];
+    fonts.sort((a, b) => a.subfamilyName.localeCompare(b.subfamilyName));
+    // always display regular style first
+    fonts.forEach((font, index) => {
+      if (font.subfamilyName == 'Regular') {
+        fonts.splice(index, 1);
+        fonts.unshift(font);
+      }
+    });
   });
   return families;
 }

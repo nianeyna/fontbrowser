@@ -7,7 +7,7 @@ import index, { ErrorMessage } from './components';
 declare global {
   interface Window {
     'api': {
-      families: () => Promise<Map<string, Font[]>>
+      families: () => Promise<[string, Font[]][]>
     }
   }
 }
@@ -38,8 +38,7 @@ declare global {
 
 async function getFontFamilies(): Promise<[string, Font[]][]> {
   try {
-    const map = await window.api.families();
-    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+    return await window.api.families();
   }
   catch (e) {
     throw new FontBrowser.FontFamiliesAccessError('Problem getting font details from local system.');
