@@ -1,5 +1,28 @@
-export default function index(families: [string, Font[]][], sampleText: string) {
-  return Families({ families, sampleText });
+import { FontBrowser } from '../src/defs'
+
+export default function index(families: [string, Font[]][], sampleType: FontBrowser.SampleType, sampleText: string, onSelectSampleType: (x: FontBrowser.SampleType) => void) {
+  return (
+    <>
+      <SampleTextOptions selected={sampleType} onSelectSampleType={onSelectSampleType} />
+      <Families families={families} sampleText={sampleText} />
+    </>
+  );
+}
+
+export function SampleTextOptions(props: {selected: FontBrowser.SampleType, onSelectSampleType: (x: FontBrowser.SampleType) => void }) {
+  const handleChanged = (e: React.ChangeEvent<HTMLInputElement>) => props.onSelectSampleType(Number(e.target.value));
+  return (
+    <form>
+      <label>
+        <input onChange={handleChanged} type={'radio'} name={'sample-type'} value={FontBrowser.SampleType.Pangram} title={'Pangram'} checked={props.selected == FontBrowser.SampleType.Pangram} />
+        Pangram
+      </label>
+      <label>
+        <input onChange={handleChanged} type={'radio'} name={'sample-type'} value={FontBrowser.SampleType.LoremIpsum} title={'Lorem Ipsum'} checked={props.selected == FontBrowser.SampleType.LoremIpsum} />
+        Lorem Ipsum
+      </label>
+    </form>
+  )
 }
 
 export function Families(props: { families: [string, Font[]][], sampleText: string }) {

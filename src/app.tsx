@@ -16,8 +16,13 @@ declare global {
   const root = createRoot(document.getElementById('root'));
   try {
     const families = await getFontFamilies();
-    const sampleText = getSampleText(FontBrowser.SampleType.LoremIpsum);
-    const element = getRootElement(families, sampleText);
+    const initSampleType = FontBrowser.SampleType.Pangram;
+    const sampleText = getSampleText(initSampleType);
+    function onSelectSampleType(sampleType: FontBrowser.SampleType) {
+      const sampleText = getSampleText(sampleType);
+      render(root, getRootElement(families, sampleType, sampleText, onSelectSampleType))
+    }
+    const element = getRootElement(families, initSampleType, sampleText, onSelectSampleType);
     render(root, element);
   }
   catch (e) {
@@ -71,9 +76,9 @@ function loremIpsum(): string {
   }
 }
 
-function getRootElement(families: [string, Font[]][], sampleText: string) {
+function getRootElement(families: [string, Font[]][], sampleType: FontBrowser.SampleType, sampleText: string, onSelectSampleType: (x: FontBrowser.SampleType) => void) {
   try {
-    return index(families, sampleText);
+    return index(families, sampleType, sampleText, onSelectSampleType);
   }
   catch (e) {
     throw new FontBrowser.ElementConstructionError('Problem rendering font list.');
