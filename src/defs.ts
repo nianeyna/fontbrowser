@@ -17,4 +17,17 @@ export namespace FontBrowser {
     Pangram,
     LoremIpsum
   }
+
+  export class FontConstructor implements Font {
+    file: string;
+    fullName: string;
+    subfamilyName: string;
+    availableFeatures: string[];
+    constructor(file: string, fullName: string, subfamilyName: string, availableFeatures: string[]) {
+      this.file = file;
+      this.fullName = fullName;
+      this.subfamilyName = subfamilyName;
+      this.availableFeatures = availableFeatures;
+    }
+  }  
 }

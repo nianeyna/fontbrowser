@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain, protocol } from 'electron';
+import { FontBrowser } from './defs'
 import fontkit from 'fontkit';
 import glob from 'glob';
 import url from 'url';
@@ -60,53 +61,13 @@ app.whenReady().then(() => {
   });
 });
 
-//// realized I didn't really need this, but don't want to lose it in case I want it back
-//// import { app, session } from 'electron';
-//// import { PathLike, readdirSync } from 'fs';
-//// import path from 'path';
-// if (process.platform == 'win32') {
-//   const appDataPath = process.env.APPDATA;
-//   const reactDevToolsPath = '..\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\fmkadmapgofadopljbjfkapdkoienihi';
-//   const extensionPath = path.join(appDataPath, reactDevToolsPath);
-//   const versionPath = readdirSync(extensionPath, {withFileTypes: true}).filter(x => x.isDirectory()).map(y => y.name)[0];
-//   app.whenReady().then(async () => await session.defaultSession.loadExtension(path.join(extensionPath, versionPath)));
-// }
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+// IPC setups
 ipcMain.handle('font-families', async (): Promise<[string, Font[]][]> => await getFontFamilies());
 
-class FontConstructor implements Font {
-  file: string;
-  fullName: string;
-  subfamilyName: string;
-  availableFeatures: string[];
-  constructor(file: string, fullName: string, subfamilyName: string, availableFeatures: string[]) {
-    this.file = file;
-    this.fullName = fullName;
-    this.subfamilyName = subfamilyName;
-    this.availableFeatures = availableFeatures;
-  }
-}
-
-function getSystemFontFolder(): string {
-  const platform = process.platform;
-  let folder: string;
-  switch (platform) {
-    case 'win32':
-      folder = 'C:/Windows/Fonts';
-      break;
-    case 'darwin':
-      folder = '$HOME/Library/Fonts';
-      break;
-    case 'linux':
-      folder = '/usr/share/fonts';
-      break;
-    default:
-      console.log(platform);
-      folder = '';
-  }
-  return folder;
+// backend logic
+async function getFontFamilies(): Promise<[string, Font[]][]> {
+  const fonts = await getFonts();
+  return sortFonts(fonts);
 }
 
 async function getFonts(): Promise<[string, fontkit.Font][]> {
@@ -129,30 +90,53 @@ async function getFonts(): Promise<[string, fontkit.Font][]> {
   return fonts;
 }
 
-async function getFontFamilies(): Promise<[string, Font[]][]> {
-  const fonts = await getFonts();
+function sortFonts(fonts: [string, fontkit.Font][]): [string, Font[]][] {
   const familiesMap: Map<string, Font[]> = new Map();
-  fonts.forEach(element => {
-    const filePath = element[0].replaceAll('\\', '/').trim();
-    const font = element[1];
-    if (!familiesMap.has(font.familyName)) {
-      familiesMap.set(font.familyName, [])
-    }
-    const availableFeatures = [...new Set(font.availableFeatures)]; // remove duplicates
-    familiesMap.get(font.familyName)?.push(new FontConstructor(filePath, font.fullName, font.subfamilyName, availableFeatures));
-  });
+  fonts.forEach(element => addFontToFamiliesMap(familiesMap, element));
   const families = Array.from(familiesMap.entries());
   families.sort((a, b) => a[0].localeCompare(b[0]));
-  families.forEach(element => {
-    const fonts = element[1];
-    fonts.sort((a, b) => a.subfamilyName.localeCompare(b.subfamilyName));
-    // always display regular style first
-    fonts.forEach((font, index) => {
-      if (font.subfamilyName == 'Regular') {
-        fonts.splice(index, 1);
-        fonts.unshift(font);
-      }
-    });
-  });
+  families.forEach(element => sortSubfamily(element));
   return families;
+}
+
+function addFontToFamiliesMap(familiesMap: Map<string, Font[]>, element: [string, fontkit.Font]): void {
+  const filePath = element[0].replaceAll('\\', '/');
+  const font = element[1];
+  if (!familiesMap.has(font.familyName)) {
+    familiesMap.set(font.familyName, [])
+  }
+  const availableFeatures = [...new Set(font.availableFeatures)]; // remove duplicates
+  familiesMap.get(font.familyName)?.push(new FontBrowser.FontConstructor(filePath, font.fullName, font.subfamilyName, availableFeatures));
+}
+
+function sortSubfamily(subfamily: [string, Font[]]): void {
+  const fonts = subfamily[1];
+  fonts.sort((a, b) => a.subfamilyName.localeCompare(b.subfamilyName));
+  // always display regular style first
+  fonts.forEach((font, index) => {
+    if (font.subfamilyName == 'Regular') {
+      fonts.splice(index, 1);
+      fonts.unshift(font);
+    }
+  });
+}
+
+function getSystemFontFolder(): string {
+  const platform = process.platform;
+  let folder: string;
+  switch (platform) {
+    case 'win32':
+      folder = 'C:/Windows/Fonts';
+      break;
+    case 'darwin':
+      folder = '$HOME/Library/Fonts';
+      break;
+    case 'linux':
+      folder = '/usr/share/fonts';
+      break;
+    default:
+      console.log(platform);
+      folder = '';
+  }
+  return folder;
 }
