@@ -1,7 +1,8 @@
-import { createRoot } from 'react-dom/client';
+import { createRoot, Root } from 'react-dom/client';
 import { LoremIpsum } from "lorem-ipsum";
+import { FontBrowser } from './defs'
 import pangrams from './resource/pangrams.json';
-import index from './components';
+import index, { ErrorMessage } from './components';
 
 declare global {
   interface Window {
@@ -13,52 +14,77 @@ declare global {
 
 (async () => {
   const root = createRoot(document.getElementById('root'));
+  try {
+    const families = await getFontFamilies();
+    const sampleText = getSampleText(FontBrowser.SampleType.LoremIpsum);
+    const element = getRootElement(families, sampleText);
+    render(root, element);
+  }
+  catch (e) {
+    console.log(e);
+    if (e instanceof FontBrowser.FontBrowserError) {
+      root.render(<ErrorMessage message={e.message} />);
+    }
+    else {
+      root.render(<ErrorMessage message='An unknown error occurred.'/>);
+    }
+  }
+})();
 
-  let families: [string, Font[]][];
+async function getFontFamilies(): Promise<[string, Font[]][]> {
   try {
     const map = await window.api.families();
-    families = Array.from(map.entries());
+    return Array.from(map.entries());
   }
   catch (e) {
-    console.log(e);
-    root.render(<div>Problem getting font details from local system.</div>);
-    return;
+    throw new FontBrowser.FontFamiliesAccessError('Problem getting font details from local system.');
   }
+}
 
-  let sampleText: string;
+function getSampleText(sampleType: FontBrowser.SampleType) {
+  switch (sampleType) {
+    case FontBrowser.SampleType.Pangram:
+      return pangram();
+    case FontBrowser.SampleType.LoremIpsum:
+      return loremIpsum();
+    default:
+      throw new TypeError('Invalid SampleType');
+  }
+}
+
+function pangram(): string {
   try {
-    sampleText = loremIpsum();
+    return pangrams[Math.floor(Math.random() * pangrams.length)];
   }
   catch (e) {
-    console.log(e);
-    root.render(<div>Problem getting sample text.</div>);
-    return;
+    throw new FontBrowser.PangramAccessError('Problem getting sample text.');
   }
+}
 
-  let element: JSX.Element;
+function loremIpsum(): string {
   try {
-    element = index(families, sampleText);
+    const lorem = new LoremIpsum();
+    return lorem.generateParagraphs(1);    
   }
   catch (e) {
-    console.log(e);
-    root.render(<div>Problem loading fonts.</div>);
-    return;
+    throw new FontBrowser.LoremIpsumError('Problem getting sample text.');
   }
+}
 
+function getRootElement(families: [string, Font[]][], sampleText: string) {
+  try {
+    return index(families, sampleText);
+  }
+  catch (e) {
+    throw new FontBrowser.ElementConstructionError('Problem rendering font list.');
+  }
+}
+
+function render(root: Root, element: JSX.Element) {
   try {
     root.render(element);
   }
   catch (e) {
-    console.log(e);
-    root.render(<div>Problem rendering font list.</div>)
+    throw new FontBrowser.ReactRenderingError('Problem rendering font list.');
   }
-})();
-
-function pangram(): string {
-  return pangrams[Math.floor(Math.random() * pangrams.length)];
-}
-
-function loremIpsum(): string {
-  const lorem = new LoremIpsum();
-  return lorem.generateParagraphs(1);
 }

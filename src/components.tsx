@@ -50,3 +50,7 @@ export function Sample(props: { fontName: string, filePath: string, sampleText: 
     </div>
   );
 }
+
+export function ErrorMessage(props: { message: string }) {
+  return <div>{props.message}</div>
+}
