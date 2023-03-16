@@ -70,8 +70,8 @@ async function getFontFamilies(): Promise<[string, Font[]][]> {
   return sortFonts(fonts);
 }
 
-async function getFonts(): Promise<[string, fontkit.Font][]> {
-  const fonts: [string, fontkit.Font][] = [];
+async function getFonts(): Promise<Map<string, fontkit.Font>> {
+  const fonts: Map<string, fontkit.Font> = new Map();
   const folder = getSystemFontFolder();
   if (folder) {
     // not bothering with path.join since glob requires forward slashes anyway
@@ -79,7 +79,8 @@ async function getFonts(): Promise<[string, fontkit.Font][]> {
     await Promise.all(paths.map(async (element) => {
       try {
         const font = await fontkit.open(element);
-        fonts.push([element, font]);
+        const filePath = element.replaceAll('\\', '/');
+        fonts.set(filePath, font);
       }
       catch (e) {
         console.log(element);
@@ -90,9 +91,10 @@ async function getFonts(): Promise<[string, fontkit.Font][]> {
   return fonts;
 }
 
-function sortFonts(fonts: [string, fontkit.Font][]): [string, Font[]][] {
+function sortFonts(fonts: Map<string, fontkit.Font>): [string, Font[]][] {
+  const fontsList = Array.from(fonts.entries());
   const familiesMap: Map<string, Font[]> = new Map();
-  fonts.forEach(element => addFontToFamiliesMap(familiesMap, element));
+  fontsList.forEach(element => addFontToFamiliesMap(familiesMap, element));
   const families = Array.from(familiesMap.entries());
   families.sort((a, b) => a[0].localeCompare(b[0]));
   families.forEach(element => sortSubfamily(element));
@@ -100,13 +102,12 @@ function sortFonts(fonts: [string, fontkit.Font][]): [string, Font[]][] {
 }
 
 function addFontToFamiliesMap(familiesMap: Map<string, Font[]>, element: [string, fontkit.Font]): void {
-  const filePath = element[0].replaceAll('\\', '/');
   const font = element[1];
   if (!familiesMap.has(font.familyName)) {
     familiesMap.set(font.familyName, [])
   }
   const availableFeatures = [...new Set(font.availableFeatures)]; // remove duplicates
-  familiesMap.get(font.familyName)?.push(new FontBrowser.FontConstructor(filePath, font.fullName, font.subfamilyName, availableFeatures));
+  familiesMap.get(font.familyName)?.push(new FontBrowser.FontConstructor(element[0], font.fullName, font.subfamilyName, availableFeatures));
 }
 
 function sortSubfamily(subfamily: [string, Font[]]): void {
