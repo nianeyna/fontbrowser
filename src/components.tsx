@@ -6,29 +6,63 @@ import slugify from 'slugify';
 const SampleTextContext: Context<string> = createContext(null);
 
 export function Index(props: { families: [string, Font[]][] }) {
-  const [sampleType, setSampleType] = useState(FontBrowser.SampleType.Pangram);
+  const [options, setOptions] = useState(new FontBrowser.SampleTextOptions(FontBrowser.SampleType.Pangram));
   return (
-    <SampleTextContext.Provider value={getSampleText(sampleType)} >
-      <SampleTextOptions sampleType={sampleType} setSampleType={setSampleType} />
+    <SampleTextContext.Provider value={getSampleText(options)} >
+      <SampleTypeOptions options={options} setOptions={setOptions} />
       <Families families={props.families} />
     </SampleTextContext.Provider>
   );
 }
 
-export function SampleTextOptions(props: { sampleType: FontBrowser.SampleType, setSampleType: React.Dispatch<React.SetStateAction<FontBrowser.SampleType>> }) {
-  const handleChanged = (e: React.ChangeEvent<HTMLInputElement>) => props.setSampleType(Number(e.target.value));
+export function SampleTypeOptions(props: {
+  options: FontBrowser.SampleTextOptions,
+  setOptions: React.Dispatch<React.SetStateAction<FontBrowser.SampleTextOptions>>
+}) {
+  const handleChanged = (e: React.ChangeEvent<HTMLInputElement>) =>
+    props.setOptions({ ...props.options, sampleType: Number(e.target.value) });
   return (
     <form>
-      <label>
-        <input onChange={handleChanged} type={'radio'} name={'sample-type'} value={FontBrowser.SampleType.Pangram} checked={props.sampleType == FontBrowser.SampleType.Pangram} />
-        Pangram
-      </label>
-      <label>
-        <input onChange={handleChanged} type={'radio'} name={'sample-type'} value={FontBrowser.SampleType.LoremIpsum} checked={props.sampleType == FontBrowser.SampleType.LoremIpsum} />
-        Lorem Ipsum
-      </label>
+      <div>
+        <label>
+          <input
+            type={'radio'} name={'sample-type'} onChange={handleChanged}
+            value={FontBrowser.SampleType.Pangram} checked={props.options.sampleType == FontBrowser.SampleType.Pangram} />
+          Pangram
+        </label>
+      </div>
+      <div>
+        <label>
+          <input
+            type={'radio'} name={'sample-type'} onChange={handleChanged}
+            value={FontBrowser.SampleType.LoremIpsum} checked={props.options.sampleType == FontBrowser.SampleType.LoremIpsum} />
+          Lorem Ipsum
+        </label>
+      </div>
+      <div>
+        <label>
+          <input
+            type={'radio'} name={'sample-type'} onChange={handleChanged}
+            value={FontBrowser.SampleType.Custom} checked={props.options.sampleType == FontBrowser.SampleType.Custom} />
+          Custom Text
+        </label>
+      </div>
+      <div>
+        {props.options.sampleType == FontBrowser.SampleType.Custom &&
+          <CustomText options={props.options} setOptions={props.setOptions} />}
+      </div>
     </form>
   )
+}
+
+export function CustomText(
+  props: {
+    options: FontBrowser.CustomTextOptions,
+    setOptions: React.Dispatch<React.SetStateAction<FontBrowser.CustomTextOptions>>
+  }) {
+  const handleChanged = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+    props.setOptions({ ...props.options, customText: e.target.value });
+  return <textarea onChange={handleChanged} value={props.options.customText ?? ''} />
 }
 
 export function Families(props: { families: [string, Font[]][] }) {

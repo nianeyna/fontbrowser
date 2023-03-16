@@ -2,12 +2,16 @@ import { LoremIpsum } from "lorem-ipsum";
 import { FontBrowser } from "./defs";
 import pangrams from './resource/pangrams.json';
 
-export default function getSampleText(sampleType: FontBrowser.SampleType) {
-  switch (sampleType) {
+export default function getSampleText(options: FontBrowser.SampleTextOptions) {
+  switch (options.sampleType) {
     case FontBrowser.SampleType.Pangram:
       return pangram();
     case FontBrowser.SampleType.LoremIpsum:
       return loremIpsum();
+    case FontBrowser.SampleType.Custom:
+      const customTextOptions = options as FontBrowser.CustomTextOptions;
+      const customText = customTextOptions.customText;
+      return customText ? customText : 'Your text here';
     default:
       throw new TypeError('Invalid SampleType');
   }

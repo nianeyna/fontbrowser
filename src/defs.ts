@@ -15,7 +15,33 @@ export namespace FontBrowser {
 
   export enum SampleType {
     Pangram,
-    LoremIpsum
+    LoremIpsum,
+    Custom
+  }
+
+  export class SampleTextOptions {
+    sampleType: SampleType
+    constructor(sampleType: SampleType) {
+      this.sampleType = sampleType;
+    }
+  }
+
+  export class PangramOptions extends SampleTextOptions {
+    // none yet
+    constructor(sampleType: SampleType) { super(sampleType) }
+  }
+
+  export class LoremIpsumOptions extends SampleTextOptions {
+    // none yet
+    constructor(sampleType: SampleType) { super(sampleType) }
+  }
+
+  export class CustomTextOptions extends SampleTextOptions {
+    customText?: string
+    constructor(sampleType: SampleType, customText: string) {
+      super(sampleType);
+      this.customText = customText;
+    }
   }
 
   export class FontConstructor implements Font {
@@ -27,5 +53,5 @@ export namespace FontBrowser {
       this.fullName = fullName;
       this.subfamilyName = subfamilyName;
     }
-  }  
+  }
 }
