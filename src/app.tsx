@@ -45,7 +45,8 @@ async function getFontFamilies(): Promise<[string, Font[]][]> {
       family[1].forEach(async font => 
         {
           const featuresList = await window.api.features(font.file);
-          document.dispatchEvent(new CustomEvent(`feature-update-${slugify(font.fullName)}`, { detail: featuresList }));
+          const eventName = `feature-update-${slugify(font.fullName)}`;
+          document.dispatchEvent(new CustomEvent<string[]>(eventName, { detail: featuresList }));
         }));
     return familiesList;
   }

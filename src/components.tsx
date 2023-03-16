@@ -51,8 +51,13 @@ export function Subfamilies(props: { fonts: Font[], sampleText: string }) {
 }
 
 export function Features(props: { fullName: string }): JSX.Element {
-  const [featureList, setFeatureList] = useState([]);
-  useEffect(() => document.addEventListener(`feature-update-${slugify(props.fullName)}`, (e: CustomEvent) => setFeatureList(e.detail)));
+  const [featureList, setFeatureList] = useState<string[]>([]);
+  useEffect(() => {
+    const eventName: string = `feature-update-${slugify(props.fullName)}`;
+    const handler = (event: CustomEvent<string[]>) => setFeatureList(event.detail);
+    document.addEventListener(eventName, handler);
+    return () => document.removeEventListener(eventName, handler);
+  }, [props.fullName]);
   return (
     <details>
       <summary>Features</summary>
