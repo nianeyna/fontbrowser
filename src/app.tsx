@@ -1,8 +1,6 @@
 import { createRoot, Root } from 'react-dom/client';
-import { LoremIpsum } from "lorem-ipsum";
 import { FontBrowser } from './defs'
-import pangrams from './resource/pangrams.json';
-import index, { ErrorMessage } from './components';
+import { Index, ErrorMessage } from './components';
 import slugify from 'slugify';
 
 declare global {
@@ -17,14 +15,8 @@ declare global {
 (async () => {
   const root = createRoot(document.getElementById('root'));
   try {
-    const familiesList = await getFontFamilies();
-    const initSampleType = FontBrowser.SampleType.Pangram;
-    const sampleText = getSampleText(initSampleType);
-    function onSelectSampleType(sampleType: FontBrowser.SampleType) {
-      const sampleText = getSampleText(sampleType);
-      render(root, getRootElement(familiesList, sampleType, sampleText, onSelectSampleType))
-    }
-    const element = getRootElement(familiesList, initSampleType, sampleText, onSelectSampleType);
+    const fontFamilies = await getFontFamilies();
+    const element = getRootElement(fontFamilies);
     render(root, element);
   }
   catch (e) {
@@ -55,39 +47,9 @@ async function getFontFamilies(): Promise<[string, Font[]][]> {
   }
 }
 
-function getSampleText(sampleType: FontBrowser.SampleType) {
-  switch (sampleType) {
-    case FontBrowser.SampleType.Pangram:
-      return pangram();
-    case FontBrowser.SampleType.LoremIpsum:
-      return loremIpsum();
-    default:
-      throw new TypeError('Invalid SampleType');
-  }
-}
-
-function pangram(): string {
+function getRootElement(families: [string, Font[]][]) {
   try {
-    return pangrams[Math.floor(Math.random() * pangrams.length)];
-  }
-  catch (e) {
-    throw new FontBrowser.PangramAccessError('Problem getting sample text.');
-  }
-}
-
-function loremIpsum(): string {
-  try {
-    const lorem = new LoremIpsum();
-    return lorem.generateParagraphs(1);
-  }
-  catch (e) {
-    throw new FontBrowser.LoremIpsumError('Problem getting sample text.');
-  }
-}
-
-function getRootElement(families: [string, Font[]][], sampleType: FontBrowser.SampleType, sampleText: string, onSelectSampleType: (x: FontBrowser.SampleType) => void) {
-  try {
-    return index(families, sampleType, sampleText, onSelectSampleType);
+    return <Index families={families} />;
   }
   catch (e) {
     throw new FontBrowser.ElementConstructionError('Problem rendering font list.');

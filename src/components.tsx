@@ -1,51 +1,55 @@
-import React, { useEffect, useState } from 'react';
+import React, { Context, createContext, useContext, useEffect, useState } from 'react';
 import { FontBrowser } from '../src/defs'
+import getSampleText from './samples';
 import slugify from 'slugify';
 
-export default function index(families: [string, Font[]][], sampleType: FontBrowser.SampleType, sampleText: string, onSelectSampleType: (x: FontBrowser.SampleType) => void) {
+const SampleTextContext: Context<string> = createContext(null);
+
+export function Index(props: { families: [string, Font[]][] }) {
+  const [sampleType, setSampleType] = useState(FontBrowser.SampleType.Pangram);
   return (
-    <>
-      <SampleTextOptions selected={sampleType} onSelectSampleType={onSelectSampleType} />
-      <Families families={families} sampleText={sampleText} />
-    </>
+    <SampleTextContext.Provider value={getSampleText(sampleType)} >
+      <SampleTextOptions sampleType={sampleType} setSampleType={setSampleType} />
+      <Families families={props.families} />
+    </SampleTextContext.Provider>
   );
 }
 
-export function SampleTextOptions(props: {selected: FontBrowser.SampleType, onSelectSampleType: (x: FontBrowser.SampleType) => void }) {
-  const handleChanged = (e: React.ChangeEvent<HTMLInputElement>) => props.onSelectSampleType(Number(e.target.value));
+export function SampleTextOptions(props: { sampleType: FontBrowser.SampleType, setSampleType: React.Dispatch<React.SetStateAction<FontBrowser.SampleType>> }) {
+  const handleChanged = (e: React.ChangeEvent<HTMLInputElement>) => props.setSampleType(Number(e.target.value));
   return (
     <form>
       <label>
-        <input onChange={handleChanged} type={'radio'} name={'sample-type'} value={FontBrowser.SampleType.Pangram} checked={props.selected == FontBrowser.SampleType.Pangram} />
+        <input onChange={handleChanged} type={'radio'} name={'sample-type'} value={FontBrowser.SampleType.Pangram} checked={props.sampleType == FontBrowser.SampleType.Pangram} />
         Pangram
       </label>
       <label>
-        <input onChange={handleChanged} type={'radio'} name={'sample-type'} value={FontBrowser.SampleType.LoremIpsum} checked={props.selected == FontBrowser.SampleType.LoremIpsum} />
+        <input onChange={handleChanged} type={'radio'} name={'sample-type'} value={FontBrowser.SampleType.LoremIpsum} checked={props.sampleType == FontBrowser.SampleType.LoremIpsum} />
         Lorem Ipsum
       </label>
     </form>
   )
 }
 
-export function Families(props: { families: [string, Font[]][], sampleText: string }) {
+export function Families(props: { families: [string, Font[]][] }) {
   return (
     <ul>
       {props.families.map(family =>
         <li key={family[0]}>
           <h3>{family[0]}</h3>
-          <Subfamilies fonts={family[1]} sampleText={props.sampleText} />
+          <Subfamilies fonts={family[1]} />
         </li>)}
     </ul>
   );
 }
 
-export function Subfamilies(props: { fonts: Font[], sampleText: string }) {
+export function Subfamilies(props: { fonts: Font[] }) {
   return (
     <ul>{props.fonts.map(font =>
       <li key={font.fullName}>
         <h4>{font.subfamilyName}</h4>
         <Features fullName={font.fullName} />
-        <Sample fontName={font.fullName} filePath={font.file} sampleText={props.sampleText} />
+        <Sample fontName={font.fullName} filePath={font.file} />
       </li>)}
     </ul>)
 }
@@ -69,7 +73,8 @@ export function Features(props: { fullName: string }): JSX.Element {
   );
 }
 
-export function Sample(props: { fontName: string, filePath: string, sampleText: string }) {
+export function Sample(props: { fontName: string, filePath: string }) {
+  const sampleText = useContext(SampleTextContext);
   return (
     <div>
       <style>
@@ -78,7 +83,7 @@ export function Sample(props: { fontName: string, filePath: string, sampleText: 
             src: url("font://${props.filePath}");
           }`}
       </style>
-      <div style={{ fontFamily: `"${props.fontName}"` }}>{props.sampleText}</div>
+      <div style={{ fontFamily: `"${props.fontName}"` }}>{sampleText}</div>
     </div>
   );
 }
