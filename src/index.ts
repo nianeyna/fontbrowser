@@ -63,11 +63,17 @@ app.whenReady().then(() => {
 
 // IPC setups
 ipcMain.handle('font-families', async (): Promise<[string, Font[]][]> => await getFontFamilies());
+ipcMain.handle('font-features', async (_event, filePath: string): Promise<string[]> => await loadFontFeatures(filePath));
 
 // backend logic
 async function getFontFamilies(): Promise<[string, Font[]][]> {
   const fonts = await getFonts();
   return sortFonts(fonts);
+}
+
+async function loadFontFeatures(filePath: string): Promise<string[]> {
+  const font = await fontkit.open(filePath);
+  return [...new Set(font.availableFeatures)]; // remove duplicates
 }
 
 async function getFonts(): Promise<Map<string, fontkit.Font>> {
@@ -106,8 +112,7 @@ function addFontToFamiliesMap(familiesMap: Map<string, Font[]>, element: [string
   if (!familiesMap.has(font.familyName)) {
     familiesMap.set(font.familyName, [])
   }
-  const availableFeatures = [...new Set(font.availableFeatures)]; // remove duplicates
-  familiesMap.get(font.familyName)?.push(new FontBrowser.FontConstructor(element[0], font.fullName, font.subfamilyName, availableFeatures));
+  familiesMap.get(font.familyName)?.push(new FontBrowser.FontConstructor(element[0], font.fullName, font.subfamilyName));
 }
 
 function sortSubfamily(subfamily: [string, Font[]]): void {

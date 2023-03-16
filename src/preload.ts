@@ -3,5 +3,6 @@
 import { ipcRenderer, contextBridge } from 'electron';
 
 contextBridge.exposeInMainWorld('api', {
-    families: (): Promise<[string, Font[]][]> => ipcRenderer.invoke('font-families')
+    families: (): Promise<[string, Font[]][]> => ipcRenderer.invoke('font-families'),
+    features: (fileName: string): Promise<string[]> => ipcRenderer.invoke('font-features', fileName)
 });

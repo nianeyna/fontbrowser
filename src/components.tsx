@@ -1,4 +1,6 @@
+import React, { useEffect, useState } from 'react';
 import { FontBrowser } from '../src/defs'
+import slugify from 'slugify';
 
 export default function index(families: [string, Font[]][], sampleType: FontBrowser.SampleType, sampleText: string, onSelectSampleType: (x: FontBrowser.SampleType) => void) {
   return (
@@ -42,18 +44,20 @@ export function Subfamilies(props: { fonts: Font[], sampleText: string }) {
     <ul>{props.fonts.map(font =>
       <li key={font.fullName}>
         <h4>{font.subfamilyName}</h4>
-        <Features features={font.availableFeatures} />
+        <Features fullName={font.fullName} />
         <Sample fontName={font.fullName} filePath={font.file} sampleText={props.sampleText} />
       </li>)}
     </ul>)
 }
 
-export function Features(props: { features: string[] }): JSX.Element {
+export function Features(props: { fullName: string }): JSX.Element {
+  const [featureList, setFeatureList] = useState([]);
+  useEffect(() => document.addEventListener(`feature-update-${slugify(props.fullName)}`, (e: CustomEvent) => setFeatureList(e.detail)));
   return (
     <details>
       <summary>Features</summary>
       <ul>
-        {props.features.map((feature: string) =>
+        {featureList.map((feature: string) =>
           <li key={feature}>{feature}</li>)}
       </ul>
     </details>

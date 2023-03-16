@@ -3,11 +3,13 @@ import { LoremIpsum } from "lorem-ipsum";
 import { FontBrowser } from './defs'
 import pangrams from './resource/pangrams.json';
 import index, { ErrorMessage } from './components';
+import slugify from 'slugify';
 
 declare global {
   interface Window {
     'api': {
-      families: () => Promise<[string, Font[]][]>
+      families: () => Promise<[string, Font[]][]>,
+      features: (fileName: string) => Promise<string[]>
     }
   }
 }
@@ -15,14 +17,14 @@ declare global {
 (async () => {
   const root = createRoot(document.getElementById('root'));
   try {
-    const families = await getFontFamilies();
+    const familiesList = await getFontFamilies();
     const initSampleType = FontBrowser.SampleType.Pangram;
     const sampleText = getSampleText(initSampleType);
     function onSelectSampleType(sampleType: FontBrowser.SampleType) {
       const sampleText = getSampleText(sampleType);
-      render(root, getRootElement(families, sampleType, sampleText, onSelectSampleType))
+      render(root, getRootElement(familiesList, sampleType, sampleText, onSelectSampleType))
     }
-    const element = getRootElement(families, initSampleType, sampleText, onSelectSampleType);
+    const element = getRootElement(familiesList, initSampleType, sampleText, onSelectSampleType);
     render(root, element);
   }
   catch (e) {
@@ -31,14 +33,21 @@ declare global {
       root.render(<ErrorMessage message={e.message} />);
     }
     else {
-      root.render(<ErrorMessage message='An unknown error occurred.'/>);
+      root.render(<ErrorMessage message='An unknown error occurred.' />);
     }
   }
 })();
 
 async function getFontFamilies(): Promise<[string, Font[]][]> {
   try {
-    return await window.api.families();
+    const familiesList = await window.api.families();
+    familiesList.forEach(family => 
+      family[1].forEach(async font => 
+        {
+          const featuresList = await window.api.features(font.file);
+          document.dispatchEvent(new CustomEvent(`feature-update-${slugify(font.fullName)}`, { detail: featuresList }));
+        }));
+    return familiesList;
   }
   catch (e) {
     throw new FontBrowser.FontFamiliesAccessError('Problem getting font details from local system.');
@@ -68,7 +77,7 @@ function pangram(): string {
 function loremIpsum(): string {
   try {
     const lorem = new LoremIpsum();
-    return lorem.generateParagraphs(1);    
+    return lorem.generateParagraphs(1);
   }
   catch (e) {
     throw new FontBrowser.LoremIpsumError('Problem getting sample text.');

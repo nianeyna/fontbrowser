@@ -22,12 +22,10 @@ export namespace FontBrowser {
     file: string;
     fullName: string;
     subfamilyName: string;
-    availableFeatures: string[];
-    constructor(file: string, fullName: string, subfamilyName: string, availableFeatures: string[]) {
+    constructor(file: string, fullName: string, subfamilyName: string) {
       this.file = file;
       this.fullName = fullName;
       this.subfamilyName = subfamilyName;
-      this.availableFeatures = availableFeatures;
     }
   }  
 }
