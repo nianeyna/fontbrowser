@@ -3,6 +3,7 @@ import { FontBrowser } from '../src/defs'
 import getSampleText from './samples';
 import slugify from 'slugify';
 
+const maxTextAreaHeight = 500;
 const SampleTextContext: Context<string> = createContext(null);
 
 export function Index(props: { families: [string, Font[]][] }) {
@@ -60,8 +61,13 @@ export function CustomText(
     options: FontBrowser.CustomTextOptions,
     setOptions: React.Dispatch<React.SetStateAction<FontBrowser.CustomTextOptions>>
   }) {
-  const handleChanged = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+  const handleChanged = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    e.target.setAttribute('style', 'height: auto');
+    e.target.scrollHeight < maxTextAreaHeight
+      ? e.target.setAttribute('style', `height: ${e.target.scrollHeight}px`)
+      : e.target.setAttribute('style', `height: ${maxTextAreaHeight}px`);
     props.setOptions({ ...props.options, customText: e.target.value });
+  };
   return <textarea onChange={handleChanged} value={props.options.customText ?? ''} />
 }
 
