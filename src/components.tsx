@@ -1,19 +1,31 @@
-import React, { Context, createContext, useContext, useEffect, useState } from 'react';
+import React, { Context, createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { FontBrowser } from '../src/defs'
 import getSampleText from './samples';
 import slugify from 'slugify';
 
 const maxTextAreaHeight = 500;
 const SampleTextContext: Context<string> = createContext(null);
+const SearchTermContext: Context<[string, React.Dispatch<React.SetStateAction<string>>]> = createContext(null);
 
 export function Index(props: { families: [string, Font[]][] }) {
   const [options, setOptions] = useState(new FontBrowser.SampleTextOptions(FontBrowser.SampleType.Pangram));
+  const [searchTerm, setSearchTerm] = useState<string>(null);
+  const sampleText = useMemo(() => getSampleText(options), [options])
   return (
-    <SampleTextContext.Provider value={getSampleText(options)} >
-      <SampleTypeOptions options={options} setOptions={setOptions} />
-      <Families families={props.families} />
-    </SampleTextContext.Provider>
+    <SearchTermContext.Provider value={[searchTerm, setSearchTerm]}>
+      <SampleTextContext.Provider value={sampleText} >
+        <SearchField />
+        <SampleTypeOptions options={options} setOptions={setOptions} />
+        <Families families={props.families} />
+      </SampleTextContext.Provider>
+    </SearchTermContext.Provider >
   );
+}
+
+export function SearchField() {
+  const [searchTerm, setSearchTerm] = useContext(SearchTermContext);
+  const handleChanged = (e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value);
+  return <input onChange={handleChanged} type={'text'} value={searchTerm ?? ''} />
 }
 
 export function SampleTypeOptions(props: {
@@ -72,13 +84,16 @@ export function CustomText(
 }
 
 export function Families(props: { families: [string, Font[]][] }) {
+  const [searchTerm] = useContext(SearchTermContext);
   return (
     <ul>
-      {props.families.map(family =>
-        <li key={family[0]}>
-          <h3>{family[0]}</h3>
-          <Subfamilies fonts={family[1]} />
-        </li>)}
+      {props.families
+        .filter(family => searchTerm ? family[0].toLowerCase().includes(searchTerm.toLowerCase()) : true)
+        .map(family =>
+          <li key={family[0]}>
+            <h3>{family[0]}</h3>
+            <Subfamilies fonts={family[1]} />
+          </li>)}
     </ul>
   );
 }
