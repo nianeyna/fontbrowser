@@ -5,27 +5,37 @@ import slugify from 'slugify';
 
 const maxTextAreaHeight = 500;
 const SampleTextContext: Context<string> = createContext(null);
-const SearchTermContext: Context<[string, React.Dispatch<React.SetStateAction<string>>]> = createContext(null);
+const SearchTermContext: Context<[FontBrowser.SearchAndFilterOptions, React.Dispatch<React.SetStateAction<FontBrowser.SearchAndFilterOptions>>]> = createContext(null);
+const AvailableFeaturesContext: Context<[string[], React.Dispatch<React.SetStateAction<string[]>>]> = createContext(null);
 
 export function Index(props: { families: [string, Font[]][] }) {
   const [options, setOptions] = useState(new FontBrowser.SampleTextOptions(FontBrowser.SampleType.Pangram));
-  const [searchTerm, setSearchTerm] = useState<string>(null);
+  const [searchOptions, setSearchOptions] = useState<FontBrowser.SearchAndFilterOptions>(null);
+  const [availableFeatures, setAvailableFeatures] = useState<string[]>([]);
   const sampleText = useMemo(() => getSampleText(options), [options])
   return (
-    <SearchTermContext.Provider value={[searchTerm, setSearchTerm]}>
-      <SampleTextContext.Provider value={sampleText} >
-        <SearchField />
-        <SampleTypeOptions options={options} setOptions={setOptions} />
-        <Families families={props.families} />
-      </SampleTextContext.Provider>
-    </SearchTermContext.Provider >
+    <AvailableFeaturesContext.Provider value={[availableFeatures, setAvailableFeatures]}>
+      <ul>{availableFeatures.sort((a, b) => a.localeCompare(b)).map(x => <li className='feature' key={x}>{x}</li>)}</ul>
+      <SearchTermContext.Provider value={[searchOptions, setSearchOptions]}>
+        <SampleTextContext.Provider value={sampleText} >
+          <SearchField />
+          <SampleTypeOptions options={options} setOptions={setOptions} />
+          <Families families={props.families} />
+        </SampleTextContext.Provider>
+      </SearchTermContext.Provider >
+    </AvailableFeaturesContext.Provider>
   );
 }
 
 export function SearchField() {
-  const [searchTerm, setSearchTerm] = useContext(SearchTermContext);
-  const handleChanged = (e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value);
-  return <input onChange={handleChanged} type={'text'} value={searchTerm ?? ''} />
+  const [options, setOptions] = useContext(SearchTermContext);
+  const handleChanged = (e: React.ChangeEvent<HTMLInputElement>) => setOptions({ ...options, searchTerm: e.target.value });
+  return (
+    <label>
+      <input onChange={handleChanged} type={'text'} value={options?.searchTerm ?? ''} />
+      Search
+    </label>
+  );
 }
 
 export function SampleTypeOptions(props: {
@@ -84,16 +94,23 @@ export function CustomText(
 }
 
 export function Families(props: { families: [string, Font[]][] }) {
-  const [searchTerm] = useContext(SearchTermContext);
+  const [searchOptions] = useContext(SearchTermContext);
+  const searchTerm = searchOptions?.searchTerm?.toLowerCase();
   return (
     <ul>
-      {props.families
-        .filter(family => searchTerm ? family[0].toLowerCase().includes(searchTerm.toLowerCase()) : true)
-        .map(family =>
-          <li key={family[0]}>
-            <h3>{family[0]}</h3>
-            <Subfamilies fonts={family[1]} />
-          </li>)}
+      {props.families.map(family => {
+        const familyName = family[0];
+        const filteredFonts = family[1]
+          .filter(subfamily => searchTerm
+            ? subfamily.fullName.toLowerCase().includes(searchTerm)
+            : true); // don't filter if there is no search term
+        if (filteredFonts.length > 0) {
+          return <li key={familyName}>
+            <h3>{familyName}</h3>
+            <Subfamilies fonts={filteredFonts} />
+          </li>;
+        }
+      })}
     </ul>
   );
 }
@@ -111,6 +128,8 @@ export function Subfamilies(props: { fonts: Font[] }) {
 
 export function Features(props: { fullName: string }): JSX.Element {
   const [featureList, setFeatureList] = useState<string[]>([]);
+  const [availableFeatures, setAvailableFeatures] = useContext(AvailableFeaturesContext);
+  useEffect(() => setAvailableFeatures([...new Set([...availableFeatures, ...featureList])]), [featureList])
   useEffect(() => {
     const eventName: string = `feature-update-${slugify(props.fullName)}`;
     const handler = (event: CustomEvent<string[]>) => setFeatureList(event.detail);
@@ -122,7 +141,7 @@ export function Features(props: { fullName: string }): JSX.Element {
       <summary>Features</summary>
       <ul>
         {featureList.map((feature: string) =>
-          <li key={feature}>{feature}</li>)}
+          <li className='feature' key={feature}>{feature}</li>)}
       </ul>
     </details>
   );

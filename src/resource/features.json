@@ -1,0 +1,6 @@
+{
+  "aalt": {
+    "friendlyName": "Access All Alternates",
+    "function": "This feature makes all variations of a selected character accessible. This serves several purposes: An application may not support the feature by which the desired glyph would normally be accessed; the user may need a glyph outside the context supported by the normal substitution, or the user may not know what feature produces the desired glyph. Since many-to-one substitutions are not covered, ligatures would not appear in this table unless they were variant forms of another ligature."
+  }
+}

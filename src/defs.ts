@@ -44,6 +44,13 @@ export namespace FontBrowser {
     }
   }
 
+  export class SearchAndFilterOptions {
+    searchTerm?: string;
+    characters?: string;
+    subFamilies?: string[];
+    selectedFeatures?: string[];
+  }
+
   export class FontConstructor implements Font {
     file: string;
     fullName: string;
