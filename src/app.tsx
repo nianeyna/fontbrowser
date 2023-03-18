@@ -33,13 +33,14 @@ declare global {
 async function getFontFamilies(): Promise<[string, Font[]][]> {
   try {
     const familiesList = await window.api.families();
-    familiesList.forEach(family => 
-      family[1].forEach(async font => 
-        {
-          const featuresList = await window.api.features(font.file);
-          const eventName = `feature-update-${slugify(font.fullName)}`;
+    familiesList.forEach(family =>
+      family[1].forEach(async font => {
+        const featuresList = await window.api.features(font.file);
+        const eventName = `feature-update-${slugify(font.fullName)}`;
+        setTimeout(() => {
           document.dispatchEvent(new CustomEvent<string[]>(eventName, { detail: featuresList }));
-        }));
+        }, 5);
+      }));
     return familiesList;
   }
   catch (e) {
