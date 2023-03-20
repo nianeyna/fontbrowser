@@ -14,8 +14,10 @@ declare global {
 const maxTextAreaHeight = 500;
 const SearchTermContext: Context<[FontBrowser.SearchAndFilterOptions, React.Dispatch<React.SetStateAction<FontBrowser.SearchAndFilterOptions>>]> = createContext(null);
 const SampleTypeContext: Context<[FontBrowser.SampleTextOptions, React.Dispatch<React.SetStateAction<FontBrowser.SampleTextOptions>>]> = createContext(null);
+const SampleTextContext: Context<string> = createContext(null);
 const AvailableFeaturesContext: Context<Map<string, string[]>> = createContext(null);
 const DisplayedFontsContext: Context<[string[], React.Dispatch<React.SetStateAction<string[]>>]> = createContext(null);
+const ActiveFeaturesContext: Context<[string[], React.Dispatch<React.SetStateAction<string[]>>]> = createContext(null);
 
 export function ErrorMessage(props: { message: string }) {
   return <div>{props.message}</div>
@@ -26,6 +28,8 @@ export function Index(props: { families: [string, Font[]][] }) {
   const [searchOptions, setSearchOptions] = useState<FontBrowser.SearchAndFilterOptions>(null);
   const [availableFeatures, setAvailableFeatures] = useState<Map<string, string[]>>(new Map());
   const [displayedFonts, setDisplayedFonts] = useState([]);
+  const [activeFeatures, setActiveFeatures] = useState([]);
+  const sampleText = useMemo(() => getSampleText(sampleOptions), [sampleOptions]);
   useEffect(() => {
     props.families.forEach(family => family[1].forEach(async font => {
       const features = await window.api.features(font.file);
@@ -36,11 +40,15 @@ export function Index(props: { families: [string, Font[]][] }) {
   return (
     <AvailableFeaturesContext.Provider value={availableFeatures}>
       <DisplayedFontsContext.Provider value={[displayedFonts, setDisplayedFonts]}>
-        <SearchTermContext.Provider value={[searchOptions, setSearchOptions]}>
-          <SampleTypeContext.Provider value={[sampleOptions, setSampleOptions]} >
-            <ContextWrapper families={props.families} />
-          </SampleTypeContext.Provider>
-        </SearchTermContext.Provider >
+        <ActiveFeaturesContext.Provider value={[activeFeatures, setActiveFeatures]}>
+          <SearchTermContext.Provider value={[searchOptions, setSearchOptions]}>
+            <SampleTypeContext.Provider value={[sampleOptions, setSampleOptions]} >
+              <SampleTextContext.Provider value={sampleText}>
+                <ContextWrapper families={props.families} />
+              </SampleTextContext.Provider>
+            </SampleTypeContext.Provider>
+          </SearchTermContext.Provider >
+        </ActiveFeaturesContext.Provider>
       </DisplayedFontsContext.Provider>
     </AvailableFeaturesContext.Provider>
   );
@@ -69,10 +77,34 @@ function AvailableFeatures() {
           .map(x => x[1]).flat())]
           .sort((a, b) => a.localeCompare(b))
           .map(x =>
-            <li key={x}>{x}</li>
+            <FeatureCheckbox key={x} feature={x} />
           )}
       </ul>
     </details>
+  );
+}
+
+function FeatureCheckbox(props: { feature: string }) {
+  const [activeFeatures, setActiveFeatures] = useContext(ActiveFeaturesContext);
+  const handleChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked && !activeFeatures.includes(props.feature)) {
+      activeFeatures.push(props.feature);
+    }
+    else if (!e.target.checked) {
+      const index = activeFeatures.indexOf(props.feature);
+      if (index >= 0) {
+        activeFeatures.splice(index);
+      }
+    }
+    setActiveFeatures([...activeFeatures]);
+  }
+  return (
+    <li>
+      <label>
+        <input onChange={handleChanged} type={'checkbox'} checked={activeFeatures.includes(props.feature)} />
+        {props.feature}
+      </label>
+    </li>
   );
 }
 
@@ -188,20 +220,21 @@ function Subfamilies(props: { fonts: Font[] }) {
 
 function Features(props: { fullName: string }): JSX.Element {
   const availableFeatures = useContext(AvailableFeaturesContext);
+  const [activeFeatures] = useContext(ActiveFeaturesContext);
   return (
     <details>
       <summary>Features</summary>
       <ul>
         {availableFeatures.get(props.fullName)?.map((feature: string) =>
-          <li className='feature' key={feature}>{feature}</li>)}
+          <li style={{fontWeight: activeFeatures.includes(feature) ? 'bold': 'normal'}} key={feature}>{feature}</li>)}
       </ul>
     </details>
   );
 }
 
 function Sample(props: { fontName: string, filePath: string }) {
-  const [sampleOptions] = useContext(SampleTypeContext);
-  const sampleText = useMemo(() => getSampleText(sampleOptions), [sampleOptions]);
+  const sampleText = useContext(SampleTextContext);
+  const [activeFeatures] = useContext(ActiveFeaturesContext);
   return (
     <div>
       <style>
@@ -210,7 +243,7 @@ function Sample(props: { fontName: string, filePath: string }) {
             src: url("font://${props.filePath}");
           }`}
       </style>
-      <div style={{ fontFamily: `"${props.fontName}"` }}>{sampleText}</div>
+      <div style={{ fontFamily: `"${props.fontName}"`, fontFeatureSettings: activeFeatures.map(x => `"${x}"`).join(', ') }}>{sampleText}</div>
     </div>
   );
 }

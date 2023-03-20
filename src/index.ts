@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, protocol } from 'electron';
 import { FontBrowser } from './defs'
+import contextMenu from 'electron-context-menu';
 import fontkit from 'fontkit';
 import glob from 'glob';
 import url from 'url';
@@ -14,6 +15,8 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
+
+contextMenu();
 
 const createWindow = (): void => {
   // Create the browser window.
