@@ -172,6 +172,8 @@ function CustomText() {
 }
 
 function Families(props: { families: [string, Font[]][] }) {
+  const availableFeatures = useContext(AvailableFeaturesContext);
+  const [activeFeatures] = useContext(ActiveFeaturesContext);
   const [searchOptions] = useContext(SearchTermContext);
   const [_, setDisplayedFonts] = useContext(DisplayedFontsContext);
   const [filteredFamilies, setFilteredFamilies] = useState<[string, Font[]][]>([]);
@@ -182,12 +184,15 @@ function Families(props: { families: [string, Font[]][] }) {
       const filteredFonts = family[1]
         .filter(subfamily => searchTerm
           ? subfamily.fullName.toLowerCase().includes(searchTerm)
-          : true); // don't filter if there is no search term
+          : true) // don't filter if there is no search term
+        .filter(subfamily => activeFeatures.length > 0
+          ? (availableFeatures.get(subfamily.fullName) ?? []).some(feature => activeFeatures.includes(feature))
+          : true);
       return [familyName, filteredFonts];
     });
     setFilteredFamilies(filtered);
     setDisplayedFonts(filtered.map(family => family[1]).flat().map(font => font.fullName));
-  }, [searchOptions]);
+  }, [searchOptions, activeFeatures]);
   return (
     <ul>
       {filteredFamilies.map(family => {
@@ -226,7 +231,7 @@ function Features(props: { fullName: string }): JSX.Element {
       <summary>Features</summary>
       <ul>
         {availableFeatures.get(props.fullName)?.map((feature: string) =>
-          <li style={{fontWeight: activeFeatures.includes(feature) ? 'bold': 'normal'}} key={feature}>{feature}</li>)}
+          <li style={{ fontWeight: activeFeatures.includes(feature) ? 'bold' : 'normal' }} key={feature}>{feature}</li>)}
       </ul>
     </details>
   );
