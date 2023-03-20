@@ -1,7 +1,6 @@
 import { createRoot, Root } from 'react-dom/client';
 import { FontBrowser } from './defs'
 import { Index, ErrorMessage } from './components';
-import slugify from 'slugify';
 
 declare global {
   interface Window {
@@ -32,16 +31,7 @@ declare global {
 
 async function getFontFamilies(): Promise<[string, Font[]][]> {
   try {
-    const familiesList = await window.api.families();
-    familiesList.forEach(family =>
-      family[1].forEach(async font => {
-        const featuresList = await window.api.features(font.file);
-        const eventName = `feature-update-${slugify(font.fullName)}`;
-        setTimeout(() => {
-          document.dispatchEvent(new CustomEvent<string[]>(eventName, { detail: featuresList }));
-        }, 5);
-      }));
-    return familiesList;
+    return await window.api.families();
   }
   catch (e) {
     throw new FontBrowser.FontFamiliesAccessError('Problem getting font details from local system.');
