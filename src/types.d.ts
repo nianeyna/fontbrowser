@@ -3,3 +3,15 @@ interface Font {
     fullName: string,
     subfamilyName: string
 }
+
+interface Feature {
+    friendlyName: string,
+    registeredBy: string,
+    function: string,
+    example: string,
+    implementation: string,
+    interface: string,
+    suggestion: string,
+    sensitivity: string,
+    interaction: string
+}

@@ -1,6 +1,7 @@
 import React, { Context, createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { FontBrowser } from '../src/defs'
+import { FontBrowser } from '../src/defs';
 import getSampleText from './samples';
+import featureSpecification from './resource/features.json';
 
 declare global {
   interface Window {
@@ -18,6 +19,7 @@ const SampleTextContext: Context<string> = createContext(null);
 const AvailableFeaturesContext: Context<Map<string, string[]>> = createContext(null);
 const DisplayedFontsContext: Context<[string[], React.Dispatch<React.SetStateAction<string[]>>]> = createContext(null);
 const ActiveFeaturesContext: Context<[string[], React.Dispatch<React.SetStateAction<string[]>>]> = createContext(null);
+const FeatureSpecificationContext: Context<Map<string, Feature>> = createContext(null);
 
 export function ErrorMessage(props: { message: string }) {
   return <div>{props.message}</div>
@@ -29,7 +31,8 @@ export function Index(props: { families: [string, Font[]][] }) {
   const [availableFeatures, setAvailableFeatures] = useState<Map<string, string[]>>(new Map());
   const [displayedFonts, setDisplayedFonts] = useState([]);
   const [activeFeatures, setActiveFeatures] = useState([]);
-  const sampleText = useMemo(() => getSampleText(sampleOptions), [sampleOptions]);
+  const sampleText: string = useMemo(() => getSampleText(sampleOptions), [sampleOptions]);
+  const features: Map<string, Feature> = useMemo(() => new Map(Object.entries(featureSpecification)), []);
   useEffect(() => {
     props.families.forEach(family => family[1].forEach(async font => {
       const features = await window.api.features(font.file);
@@ -44,7 +47,9 @@ export function Index(props: { families: [string, Font[]][] }) {
           <SearchTermContext.Provider value={[searchOptions, setSearchOptions]}>
             <SampleTypeContext.Provider value={[sampleOptions, setSampleOptions]} >
               <SampleTextContext.Provider value={sampleText}>
-                <ContextWrapper families={props.families} />
+                <FeatureSpecificationContext.Provider value={features}>
+                  <ContextWrapper families={props.families} />
+                </FeatureSpecificationContext.Provider>
               </SampleTextContext.Provider>
             </SampleTypeContext.Provider>
           </SearchTermContext.Provider >
@@ -84,6 +89,31 @@ function AvailableFeatures() {
   );
 }
 
+function FeatureInfo(props: { feature: string }) {
+  const featureSpecification = useContext(FeatureSpecificationContext);
+  let featureInfo = featureSpecification.get(props.feature);
+  let friendlyName = featureInfo?.friendlyName;
+  // I don't love this special-casing but I also don't want to duplicate
+  // the character variant entry in the resource file one hundred times
+  if (props.feature.startsWith('cv')) {
+    featureInfo = featureSpecification.get('cvXX');
+    friendlyName = featureInfo.friendlyName.replace('%NUMBER%', props.feature.slice(2));
+  }
+  if (props.feature.startsWith('ss')) {
+    featureInfo = featureSpecification.get('ssXX');
+    friendlyName = featureInfo.friendlyName.replace('%NUMBER%', props.feature.slice(2));
+  }
+  return <span>{friendlyName ?? props.feature}</span>;
+}
+
+function FeatureDescription(props: { feature: string }) {
+  const featureSpecification = useContext(FeatureSpecificationContext);
+  const featureDescription = featureSpecification.get(props.feature)?.function ?? 'No available information';
+  const handleClick = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) =>
+    e.currentTarget.querySelector('aside').classList.toggle('hidden');
+  return <span onClick={handleClick}> (info)<aside className='feature-description hidden'>{featureDescription}</aside></span>
+}
+
 function FeatureCheckbox(props: { feature: string }) {
   const [activeFeatures, setActiveFeatures] = useContext(ActiveFeaturesContext);
   const handleChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,8 +132,9 @@ function FeatureCheckbox(props: { feature: string }) {
     <li>
       <label>
         <input onChange={handleChanged} type={'checkbox'} checked={activeFeatures.includes(props.feature)} />
-        {props.feature}
+        <FeatureInfo feature={props.feature} />
       </label>
+      <FeatureDescription feature={props.feature} />
     </li>
   );
 }
@@ -231,7 +262,9 @@ function Features(props: { fullName: string }): JSX.Element {
       <summary>Features</summary>
       <ul>
         {availableFeatures.get(props.fullName)?.map((feature: string) =>
-          <li style={{ fontWeight: activeFeatures.includes(feature) ? 'bold' : 'normal' }} key={feature}>{feature}</li>)}
+          <li style={{ fontWeight: activeFeatures.includes(feature) ? 'bold' : 'normal' }} key={feature}>
+            <FeatureInfo feature={feature} />
+          </li>)}
       </ul>
     </details>
   );

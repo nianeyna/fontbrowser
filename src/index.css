@@ -1,0 +1,8 @@
+.feature-description {
+  overflow: hidden;
+  transition: all 1s;
+}
+
+.hidden {
+  height: 0;
+}
