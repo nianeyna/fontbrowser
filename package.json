@@ -15,7 +15,6 @@
     "fonts"
   ],
   "author": "nianeyna",
-  "license": "MIT",
   "devDependencies": {
     "@electron-forge/cli": "^6.0.5",
     "@electron-forge/maker-deb": "^6.0.5",

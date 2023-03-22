@@ -38,7 +38,9 @@ const config: ForgeConfig = {
         repository: {
           owner: 'nianeyna',
           name: 'fontbrowser'
-        }
+        },
+        draft: true,
+        prerelease: true
       }
     }
   ]
