@@ -31,6 +31,17 @@ const config: ForgeConfig = {
       },
     }),
   ],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'nianeyna',
+          name: 'fontbrowser'
+        }
+      }
+    }
+  ]
 };
 
 export default config;
