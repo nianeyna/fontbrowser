@@ -6,7 +6,7 @@ declare global {
   interface Window {
     'api': {
       families: () => Promise<[string, Font[]][]>,
-      features: (fileName: string) => Promise<string[]>
+      details: (fileName: string) => Promise<FontDetails>
     }
   }
 }
