@@ -7,16 +7,16 @@ declare global {
   interface Window {
     'api': {
       families: () => Promise<[string, Font[]][]>,
-      features: (fileName: string) => Promise<string[]>
+      details: (fileName: string) => Promise<FontDetails>
     }
   }
 }
 
 const maxTextAreaHeight = 500;
-const SearchTermContext: Context<[FontBrowser.SearchAndFilterOptions, React.Dispatch<React.SetStateAction<FontBrowser.SearchAndFilterOptions>>]> = createContext(null);
+const SearchTermContext: Context<[SearchAndFilterOptions, React.Dispatch<React.SetStateAction<SearchAndFilterOptions>>]> = createContext(null);
 const SampleTypeContext: Context<[FontBrowser.SampleTextOptions, React.Dispatch<React.SetStateAction<FontBrowser.SampleTextOptions>>]> = createContext(null);
 const SampleTextContext: Context<string> = createContext(null);
-const AvailableFeaturesContext: Context<Map<string, string[]>> = createContext(null);
+const FontDetailsContext: Context<Map<string, FontDetails>> = createContext(null);
 const DisplayedFontsContext: Context<[string[], React.Dispatch<React.SetStateAction<string[]>>]> = createContext(null);
 const ActiveFeaturesContext: Context<[string[], React.Dispatch<React.SetStateAction<string[]>>]> = createContext(null);
 const FeatureSpecificationContext: Context<Map<string, Feature>> = createContext(null);
@@ -26,22 +26,22 @@ export function ErrorMessage(props: { message: string }) {
 }
 
 export function Index(props: { families: [string, Font[]][] }) {
+  const [fontDetails, setFontDetails] = useState<Map<string, FontDetails>>(new Map());
   const [sampleOptions, setSampleOptions] = useState(new FontBrowser.SampleTextOptions(FontBrowser.SampleType.Pangram));
-  const [searchOptions, setSearchOptions] = useState<FontBrowser.SearchAndFilterOptions>(null);
-  const [availableFeatures, setAvailableFeatures] = useState<Map<string, string[]>>(new Map());
+  const [searchOptions, setSearchOptions] = useState<SearchAndFilterOptions>(null);
   const [displayedFonts, setDisplayedFonts] = useState([]);
   const [activeFeatures, setActiveFeatures] = useState([]);
   const sampleText: string = useMemo(() => getSampleText(sampleOptions), [sampleOptions]);
   const features: Map<string, Feature> = useMemo(() => new Map(Object.entries(featureSpecification)), []);
   useEffect(() => {
     props.families.forEach(family => family[1].forEach(async font => {
-      const features = await window.api.features(font.file);
-      const newMap = new Map(availableFeatures.set(font.fullName, features));
-      setAvailableFeatures(newMap);
+      const details = await window.api.details(font.file);
+      const newMap = new Map(fontDetails.set(font.fullName, details));
+      setFontDetails(newMap);
     }));
   }, []);
   return (
-    <AvailableFeaturesContext.Provider value={availableFeatures}>
+    <FontDetailsContext.Provider value={fontDetails}>
       <DisplayedFontsContext.Provider value={[displayedFonts, setDisplayedFonts]}>
         <ActiveFeaturesContext.Provider value={[activeFeatures, setActiveFeatures]}>
           <SearchTermContext.Provider value={[searchOptions, setSearchOptions]}>
@@ -55,7 +55,7 @@ export function Index(props: { families: [string, Font[]][] }) {
           </SearchTermContext.Provider >
         </ActiveFeaturesContext.Provider>
       </DisplayedFontsContext.Provider>
-    </AvailableFeaturesContext.Provider>
+    </FontDetailsContext.Provider>
   );
 }
 
@@ -72,14 +72,14 @@ function ContextWrapper(props: { families: [string, Font[]][] }) {
 
 function AvailableFeatures() {
   const [displayedFonts] = useContext(DisplayedFontsContext);
-  const availableFeatures = useContext(AvailableFeaturesContext);
+  const fontDetails = useContext(FontDetailsContext);
   return (
     <details>
       <summary>All Features</summary>
       <ul>
-        {[...new Set([...availableFeatures]
+        {[...new Set([...fontDetails]
           .filter(x => displayedFonts.includes(x[0]))
-          .map(x => x[1]).flat())]
+          .map(x => x[1].features).flat())]
           .sort((a, b) => a.localeCompare(b))
           .map(x =>
             <FeatureCheckbox key={x} feature={x} />
@@ -89,29 +89,35 @@ function AvailableFeatures() {
   );
 }
 
-function FeatureInfo(props: { feature: string }) {
-  const featureSpecification = useContext(FeatureSpecificationContext);
-  let featureInfo = featureSpecification.get(props.feature);
-  let friendlyName = featureInfo?.friendlyName;
+function getFeatureInfo(feature: string, context: Map<string, Feature>): Feature {
   // I don't love this special-casing but I also don't want to duplicate
   // the character variant entry in the resource file one hundred times
-  if (props.feature.startsWith('cv')) {
-    featureInfo = featureSpecification.get('cvXX');
-    friendlyName = featureInfo.friendlyName.replace('%NUMBER%', props.feature.slice(2));
+  if (feature.startsWith('cv')) {
+    const featureInfo = context.get('cvXX');
+    const friendlyName = featureInfo.friendlyName.replace('%NUMBER%', feature.slice(2));
+    return { ...featureInfo, friendlyName: friendlyName }
   }
-  if (props.feature.startsWith('ss')) {
-    featureInfo = featureSpecification.get('ssXX');
-    friendlyName = featureInfo.friendlyName.replace('%NUMBER%', props.feature.slice(2));
+  if (feature.startsWith('ss')) {
+    const featureInfo = context.get('ssXX');
+    const friendlyName = featureInfo.friendlyName.replace('%NUMBER%', feature.slice(2));
+    return { ...featureInfo, friendlyName: friendlyName }
   }
-  return <span>{friendlyName ?? props.feature}</span>;
+  return context.get(feature);
+}
+
+function FeatureInfo(props: { feature: string }) {
+  const context = useContext(FeatureSpecificationContext);
+  const featureInfo = getFeatureInfo(props.feature, context);
+  return <span>{featureInfo?.friendlyName ?? props.feature}</span>;
 }
 
 function FeatureDescription(props: { feature: string }) {
-  const featureSpecification = useContext(FeatureSpecificationContext);
-  const featureDescription = featureSpecification.get(props.feature)?.function ?? 'No available information';
+  const context = useContext(FeatureSpecificationContext);
+  const featureInfo = getFeatureInfo(props.feature, context);
+  const featureDescription = featureInfo?.function ?? 'No available information';
   const handleClick = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) =>
     e.currentTarget.querySelector('aside').classList.toggle('hidden');
-  return <span onClick={handleClick}> (info)<aside className='feature-description hidden'>{featureDescription}</aside></span>
+  return <span onClick={handleClick}> (info)<aside dangerouslySetInnerHTML={{ __html: featureDescription }} className='feature-description hidden'></aside></span>
 }
 
 function FeatureCheckbox(props: { feature: string }) {
@@ -140,13 +146,42 @@ function FeatureCheckbox(props: { feature: string }) {
 }
 
 function SearchField() {
-  const [options, setOptions] = useContext(SearchTermContext);
-  const handleChanged = (e: React.ChangeEvent<HTMLInputElement>) => setOptions({ ...options, searchTerm: e.target.value });
+  const [searchOptions, setSearchOptions] = useContext(SearchTermContext);
+  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setSearchOptions({ ...searchOptions, searchTerm: e.target.value });
+  const handleGlyphInput = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setSearchOptions({ ...searchOptions, characters: e.target.value });
+  const handleSelectedTypeInput = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setSearchOptions({ ...searchOptions, selectedFeaturesOnly: e.target.checked });
+  const handleSecretTypeInput = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setSearchOptions({ ...searchOptions, secretOpenTypeFeatures: e.target.checked });
   return (
-    <label>
-      <input onChange={handleChanged} type={'text'} value={options?.searchTerm ?? ''} />
-      Search
-    </label>
+    <form>
+      <div>
+        <label>
+          <input onChange={handleSearchInput} type={'text'} value={searchOptions?.searchTerm ?? ''} />
+          Font name search
+        </label>
+      </div>
+      <div>
+        <label>
+          <input onChange={handleGlyphInput} type={'text'} value={searchOptions?.characters ?? ''} />
+          Character search
+        </label>
+      </div>
+      <div>
+        <label>
+          <input onChange={handleSelectedTypeInput} type={'checkbox'} checked={searchOptions?.selectedFeaturesOnly ?? false} />
+          Only show fonts that support selected OpenType features
+        </label>
+      </div>
+      <div>
+        <label>
+          <input onChange={handleSecretTypeInput} type={'checkbox'} checked={searchOptions?.secretOpenTypeFeatures ?? false} />
+          Reveal OpenType features that are not meant to be adjustable
+        </label>
+      </div>
+    </form>
   );
 }
 
@@ -203,7 +238,7 @@ function CustomText() {
 }
 
 function Families(props: { families: [string, Font[]][] }) {
-  const availableFeatures = useContext(AvailableFeaturesContext);
+  const fontDetails = useContext(FontDetailsContext);
   const [activeFeatures] = useContext(ActiveFeaturesContext);
   const [searchOptions] = useContext(SearchTermContext);
   const [_, setDisplayedFonts] = useContext(DisplayedFontsContext);
@@ -216,8 +251,13 @@ function Families(props: { families: [string, Font[]][] }) {
         .filter(subfamily => searchTerm
           ? subfamily.fullName.toLowerCase().includes(searchTerm)
           : true) // don't filter if there is no search term
-        .filter(subfamily => activeFeatures.length > 0
-          ? (availableFeatures.get(subfamily.fullName) ?? []).some(feature => activeFeatures.includes(feature))
+        .filter(subfamily => searchOptions?.selectedFeaturesOnly == true && activeFeatures.length > 0
+          ? (fontDetails.get(subfamily.fullName)?.features ?? [])
+            .some(feature => activeFeatures.includes(feature))
+          : true)
+        .filter(subfamily => searchOptions?.characters
+          ? getCodePointsFromString(searchOptions.characters)
+            .every(point => fontDetails.get(subfamily.fullName).characters.includes(point))
           : true);
       return [familyName, filteredFonts];
     });
@@ -243,6 +283,14 @@ function Families(props: { families: [string, Font[]][] }) {
   );
 }
 
+function getCodePointsFromString(searchString: string): number[] {
+  const codePoints: number[] = []
+  for (const codePoint of searchString) {
+    codePoints.push(codePoint.codePointAt(0));
+  }
+  return codePoints;
+}
+
 function Subfamilies(props: { fonts: Font[] }) {
   return (
     <ul>{props.fonts.map(font =>
@@ -255,13 +303,16 @@ function Subfamilies(props: { fonts: Font[] }) {
 }
 
 function Features(props: { fullName: string }): JSX.Element {
-  const availableFeatures = useContext(AvailableFeaturesContext);
+  const context = useContext(FeatureSpecificationContext);
+  const fontDetails = useContext(FontDetailsContext);
+  const [searchOptions] = useContext(SearchTermContext);
   const [activeFeatures] = useContext(ActiveFeaturesContext);
+  const features = fontDetails.get(props.fullName)?.features
   return (
     <details>
       <summary>Features</summary>
       <ul>
-        {availableFeatures.get(props.fullName)?.map((feature: string) =>
+      {features?.map((feature: string) =>
           <li style={{ fontWeight: activeFeatures.includes(feature) ? 'bold' : 'normal' }} key={feature}>
             <FeatureInfo feature={feature} />
           </li>)}
@@ -281,7 +332,7 @@ function Sample(props: { fontName: string, filePath: string }) {
             src: url("font://${props.filePath}");
           }`}
       </style>
-      <div style={{ fontFamily: `"${props.fontName}"`, fontFeatureSettings: activeFeatures.map(x => `"${x}"`).join(', ') }}>{sampleText}</div>
+      <div style={{ fontFamily: `"${props.fontName}"`, whiteSpace: 'pre-wrap', fontFeatureSettings: activeFeatures.map(x => `"${x}"`).join(', ') }}>{sampleText}</div>
     </div>
   );
 }

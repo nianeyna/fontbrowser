@@ -4,6 +4,11 @@ interface Font {
     subfamilyName: string
 }
 
+interface FontDetails {
+    features: string[],
+    characters: number[]
+}
+
 interface Feature {
     friendlyName: string,
     registeredBy: string,
@@ -14,4 +19,11 @@ interface Feature {
     suggestion: string,
     sensitivity: string,
     interaction: string
+}
+
+interface SearchAndFilterOptions {
+    searchTerm?: string,
+    characters?: string,
+    selectedFeaturesOnly: boolean,
+    secretOpenTypeFeatures: boolean,
 }

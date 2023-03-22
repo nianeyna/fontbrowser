@@ -1,6 +1,6 @@
 .feature-description {
   overflow: hidden;
-  transition: all 1s;
+  transition: all 1s; /* doesn't work :( */
 }
 
 .hidden {

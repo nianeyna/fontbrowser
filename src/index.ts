@@ -66,7 +66,7 @@ app.whenReady().then(() => {
 
 // IPC setups
 ipcMain.handle('font-families', async (): Promise<[string, Font[]][]> => await getFontFamilies());
-ipcMain.handle('font-features', async (_event, filePath: string): Promise<string[]> => await loadFontFeatures(filePath));
+ipcMain.handle('font-features', async (_event, filePath: string): Promise<FontDetails> => await loadFontFeatures(filePath));
 
 // backend logic
 async function getFontFamilies(): Promise<[string, Font[]][]> {
@@ -74,9 +74,11 @@ async function getFontFamilies(): Promise<[string, Font[]][]> {
   return sortFonts(fonts);
 }
 
-async function loadFontFeatures(filePath: string): Promise<string[]> {
+async function loadFontFeatures(filePath: string): Promise<FontDetails> {
   const font = await fontkit.open(filePath);
-  return [...new Set(font.availableFeatures)]; // remove duplicates
+  const characters = font.characterSet;
+  const features = [...new Set(font.availableFeatures)]; // remove duplicates
+  return new FontBrowser.FontDetailsConstructor(features, characters);
 }
 
 async function getFonts(): Promise<Map<string, fontkit.Font>> {

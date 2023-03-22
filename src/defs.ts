@@ -27,12 +27,10 @@ export namespace FontBrowser {
   }
 
   export class PangramOptions extends SampleTextOptions {
-    // none yet
     constructor(sampleType: SampleType) { super(sampleType) }
   }
 
   export class LoremIpsumOptions extends SampleTextOptions {
-    // none yet
     constructor(sampleType: SampleType) { super(sampleType) }
   }
 
@@ -44,13 +42,6 @@ export namespace FontBrowser {
     }
   }
 
-  export class SearchAndFilterOptions {
-    searchTerm?: string;
-    characters?: string;
-    subFamilies?: string[];
-    selectedFeatures?: string[];
-  }
-
   export class FontConstructor implements Font {
     file: string;
     fullName: string;
@@ -59,6 +50,15 @@ export namespace FontBrowser {
       this.file = file;
       this.fullName = fullName;
       this.subfamilyName = subfamilyName;
+    }
+  }
+
+  export class FontDetailsConstructor implements FontDetails {
+    features: string[];
+    characters: number[];
+    constructor(features: string[], characters: number[]) {
+      this.features = features;
+      this.characters = characters;
     }
   }
 }
