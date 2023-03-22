@@ -211,6 +211,14 @@ function SampleTypeOptions() {
         <label>
           <input
             type={'radio'} name={'sample-type'} onChange={handleChanged}
+            value={FontBrowser.SampleType.Glyphs} checked={sampleOptions.sampleType == FontBrowser.SampleType.Glyphs} />
+          Glyphs
+        </label>
+      </div>
+      <div>
+        <label>
+          <input
+            type={'radio'} name={'sample-type'} onChange={handleChanged}
             value={FontBrowser.SampleType.Custom} checked={sampleOptions.sampleType == FontBrowser.SampleType.Custom} />
           Custom Text
         </label>
@@ -312,7 +320,7 @@ function Features(props: { fullName: string }): JSX.Element {
     <details>
       <summary>Features</summary>
       <ul>
-      {features?.map((feature: string) =>
+        {features?.map((feature: string) =>
           <li style={{ fontWeight: activeFeatures.includes(feature) ? 'bold' : 'normal' }} key={feature}>
             <FeatureInfo feature={feature} />
           </li>)}
@@ -323,7 +331,19 @@ function Features(props: { fullName: string }): JSX.Element {
 
 function Sample(props: { fontName: string, filePath: string }) {
   const sampleText = useContext(SampleTextContext);
+  const fontDetails = useContext(FontDetailsContext);
+  const [sampleOptions] = useContext(SampleTypeContext);
   const [activeFeatures] = useContext(ActiveFeaturesContext);
+  const [realSampleText, setRealSampleText] = useState(sampleText);
+  useEffect(() => {
+    const fontInfo = fontDetails.get(props.fontName);
+    if (sampleOptions.sampleType == FontBrowser.SampleType.Glyphs && fontInfo) {
+      setRealSampleText(fontInfo.characterString);
+    }
+    else {
+      setRealSampleText(sampleText);
+    }
+  }, [sampleOptions, fontDetails]);
   return (
     <div>
       <style>
@@ -332,7 +352,13 @@ function Sample(props: { fontName: string, filePath: string }) {
             src: url("font://${props.filePath}");
           }`}
       </style>
-      <div style={{ fontFamily: `"${props.fontName}"`, whiteSpace: 'pre-wrap', fontFeatureSettings: activeFeatures.map(x => `"${x}"`).join(', ') }}>{sampleText}</div>
+      <div style={{
+        fontFamily: `"${props.fontName}"`,
+        whiteSpace: 'pre-wrap',
+        fontFeatureSettings: activeFeatures.map(x => `"${x}"`).join(', ')
+      }}>
+        {realSampleText}
+      </div>
     </div>
   );
 }

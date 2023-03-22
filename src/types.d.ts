@@ -6,7 +6,8 @@ interface Font {
 
 interface FontDetails {
     features: string[],
-    characters: number[]
+    characters: number[],
+    characterString: string
 }
 
 interface Feature {

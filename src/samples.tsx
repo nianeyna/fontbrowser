@@ -12,6 +12,8 @@ export default function getSampleText(options: FontBrowser.SampleTextOptions) {
       const customTextOptions = options as FontBrowser.CustomTextOptions;
       const customText = customTextOptions.customText;
       return customText ? customText : 'Your text here';
+    case FontBrowser.SampleType.Glyphs:
+      return 'Getting glphys for font';
     default:
       throw new TypeError('Invalid SampleType');
   }

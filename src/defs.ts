@@ -16,7 +16,8 @@ export namespace FontBrowser {
   export enum SampleType {
     Pangram,
     LoremIpsum,
-    Custom
+    Custom,
+    Glyphs
   }
 
   export class SampleTextOptions {
@@ -35,10 +36,18 @@ export namespace FontBrowser {
   }
 
   export class CustomTextOptions extends SampleTextOptions {
-    customText?: string
+    customText?: string;
     constructor(sampleType: SampleType, customText: string) {
       super(sampleType);
       this.customText = customText;
+    }
+  }
+
+  export class GlyphOptions extends SampleTextOptions {
+    codePoints: number[];
+    constructor(sampleType: SampleType, codePoints: number[]) { 
+      super(sampleType);
+      this.codePoints = codePoints;
     }
   }
 
@@ -56,9 +65,11 @@ export namespace FontBrowser {
   export class FontDetailsConstructor implements FontDetails {
     features: string[];
     characters: number[];
-    constructor(features: string[], characters: number[]) {
+    characterString: string;
+    constructor(features: string[], characters: number[], characterString: string) {
       this.features = features;
       this.characters = characters;
+      this.characterString = characterString;
     }
   }
 }

@@ -76,9 +76,11 @@ async function getFontFamilies(): Promise<[string, Font[]][]> {
 
 async function loadFontFeatures(filePath: string): Promise<FontDetails> {
   const font = await fontkit.open(filePath);
-  const characters = font.characterSet;
   const features = [...new Set(font.availableFeatures)]; // remove duplicates
-  return new FontBrowser.FontDetailsConstructor(features, characters);
+  const characters = font.characterSet;
+  // may not be necessary to do this on the backend... but also no reason not to afaik
+  const characterString = [...String.fromCodePoint(...characters)].join(' ');
+  return new FontBrowser.FontDetailsConstructor(features, characters, characterString);
 }
 
 async function getFonts(): Promise<Map<string, fontkit.Font>> {
