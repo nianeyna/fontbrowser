@@ -82,10 +82,6 @@ function AvailableFeatures() {
         {[...new Set([...fontDetails]
           .filter(x => displayedFonts.includes(x[0]))
           .map(x => x[1].features).flat())]
-          .filter(x =>
-            searchOptions?.secretOpenTypeFeatures == true ||
-            !featureSpecification.get(x)?.suggestion
-              .includes('Control of the feature should not generally be exposed to the user.'))
           .sort((a, b) => a.localeCompare(b))
           .map(x =>
             <FeatureCheckbox key={x} feature={x} />
@@ -127,7 +123,9 @@ function FeatureDescription(props: { feature: string }) {
 }
 
 function FeatureCheckbox(props: { feature: string }) {
+  const featureSpecification = useContext(FeatureSpecificationContext);
   const [activeFeatures, setActiveFeatures] = useContext(ActiveFeaturesContext);
+  const [searchOptions] = useContext(SearchTermContext);
   const handleChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked && !activeFeatures.includes(props.feature)) {
       activeFeatures.push(props.feature);
@@ -140,15 +138,19 @@ function FeatureCheckbox(props: { feature: string }) {
     }
     setActiveFeatures([...activeFeatures]);
   }
-  return (
-    <li>
-      <label>
-        <input onChange={handleChanged} type={'checkbox'} checked={activeFeatures.includes(props.feature)} />
-        <FeatureInfo feature={props.feature} />
-      </label>
-      <FeatureDescription feature={props.feature} />
-    </li>
-  );
+  if (searchOptions?.secretOpenTypeFeatures == true ||
+    !featureSpecification.get(props.feature)?.suggestion
+      .includes('Control of the feature should not generally be exposed to the user.')) {
+    return (
+      <li>
+        <label>
+          <input onChange={handleChanged} type={'checkbox'} checked={activeFeatures.includes(props.feature)} />
+          <FeatureInfo feature={props.feature} />
+        </label>
+        <FeatureDescription feature={props.feature} />
+      </li>
+    );
+  }
 }
 
 function SearchField() {
@@ -310,16 +312,12 @@ function Subfamilies(props: { fonts: Font[] }) {
 
 function Features(props: { fullName: string }): JSX.Element {
   const fontDetails = useContext(FontDetailsContext);
-  const [activeFeatures] = useContext(ActiveFeaturesContext);
   const features = fontDetails.get(props.fullName)?.features
   return (
     <details>
       <summary>Features</summary>
       <ul>
-        {features?.map((feature: string) =>
-          <li style={{ fontWeight: activeFeatures.includes(feature) ? 'bold' : 'normal' }} key={feature}>
-            <FeatureInfo feature={feature} />
-          </li>)}
+        {features?.map((feature: string) => <FeatureCheckbox feature={feature} />)}
       </ul>
     </details>
   );
