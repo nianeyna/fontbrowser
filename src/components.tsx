@@ -211,14 +211,6 @@ function SampleTypeOptions() {
         <label>
           <input
             type={'radio'} name={'sample-type'} onChange={handleChanged}
-            value={FontBrowser.SampleType.Glyphs} checked={sampleOptions.sampleType == FontBrowser.SampleType.Glyphs} />
-          Glyphs
-        </label>
-      </div>
-      <div>
-        <label>
-          <input
-            type={'radio'} name={'sample-type'} onChange={handleChanged}
             value={FontBrowser.SampleType.Custom} checked={sampleOptions.sampleType == FontBrowser.SampleType.Custom} />
           Custom Text
         </label>
@@ -311,9 +303,7 @@ function Subfamilies(props: { fonts: Font[] }) {
 }
 
 function Features(props: { fullName: string }): JSX.Element {
-  const context = useContext(FeatureSpecificationContext);
   const fontDetails = useContext(FontDetailsContext);
-  const [searchOptions] = useContext(SearchTermContext);
   const [activeFeatures] = useContext(ActiveFeaturesContext);
   const features = fontDetails.get(props.fullName)?.features
   return (
@@ -332,18 +322,12 @@ function Features(props: { fullName: string }): JSX.Element {
 function Sample(props: { fontName: string, filePath: string }) {
   const sampleText = useContext(SampleTextContext);
   const fontDetails = useContext(FontDetailsContext);
-  const [sampleOptions] = useContext(SampleTypeContext);
   const [activeFeatures] = useContext(ActiveFeaturesContext);
-  const [realSampleText, setRealSampleText] = useState(sampleText);
-  useEffect(() => {
-    const fontInfo = fontDetails.get(props.fontName);
-    if (sampleOptions.sampleType == FontBrowser.SampleType.Glyphs && fontInfo) {
-      setRealSampleText(fontInfo.characterString);
-    }
-    else {
-      setRealSampleText(sampleText);
-    }
-  }, [sampleOptions, fontDetails]);
+  const [characterString, setCharacterString] = useState('');
+  const handleClick = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
+    setCharacterString(fontDetails.get(props.fontName)?.characterString);
+    e.currentTarget.parentElement.querySelector('aside').classList.toggle('hidden');
+  };
   return (
     <div>
       <style>
@@ -357,7 +341,11 @@ function Sample(props: { fontName: string, filePath: string }) {
         whiteSpace: 'pre-wrap',
         fontFeatureSettings: activeFeatures.map(x => `"${x}"`).join(', ')
       }}>
-        {realSampleText}
+        {sampleText}
+        <div>
+          <button onClick={handleClick}>View all code points</button>
+          <aside className='feature-description hidden'>{characterString}</aside>
+        </div>
       </div>
     </div>
   );

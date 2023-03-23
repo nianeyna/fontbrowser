@@ -16,8 +16,7 @@ export namespace FontBrowser {
   export enum SampleType {
     Pangram,
     LoremIpsum,
-    Custom,
-    Glyphs
+    Custom
   }
 
   export class SampleTextOptions {
@@ -40,14 +39,6 @@ export namespace FontBrowser {
     constructor(sampleType: SampleType, customText: string) {
       super(sampleType);
       this.customText = customText;
-    }
-  }
-
-  export class GlyphOptions extends SampleTextOptions {
-    codePoints: number[];
-    constructor(sampleType: SampleType, codePoints: number[]) { 
-      super(sampleType);
-      this.codePoints = codePoints;
     }
   }
 
