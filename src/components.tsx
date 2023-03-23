@@ -71,7 +71,9 @@ function ContextWrapper(props: { families: [string, Font[]][] }) {
 }
 
 function AvailableFeatures() {
+  const featureSpecification = useContext(FeatureSpecificationContext);
   const [displayedFonts] = useContext(DisplayedFontsContext);
+  const [searchOptions] = useContext(SearchTermContext);
   const fontDetails = useContext(FontDetailsContext);
   return (
     <details>
@@ -80,6 +82,10 @@ function AvailableFeatures() {
         {[...new Set([...fontDetails]
           .filter(x => displayedFonts.includes(x[0]))
           .map(x => x[1].features).flat())]
+          .filter(x =>
+            searchOptions?.secretOpenTypeFeatures == true ||
+            !featureSpecification.get(x)?.suggestion
+              .includes('Control of the feature should not generally be exposed to the user.'))
           .sort((a, b) => a.localeCompare(b))
           .map(x =>
             <FeatureCheckbox key={x} feature={x} />
