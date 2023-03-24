@@ -1,4 +1,4 @@
-import { app, MenuItemConstructorOptions } from 'electron'
+import { app, MenuItemConstructorOptions, shell } from 'electron'
 
 const isMac = process.platform === 'darwin'
 
@@ -89,10 +89,8 @@ export default [
     submenu: [
       {
         label: 'Learn More',
-        click: async () => {
-          const { shell } = require('electron')
+        click: async () =>
           await shell.openExternal('https://github.com/nianeyna/fontbrowser')
-        }
       }
     ]
   }
