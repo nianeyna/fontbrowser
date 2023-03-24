@@ -6,3 +6,24 @@
 .hidden {
   height: 0;
 }
+
+nav {
+  border-bottom: 1px solid black;
+  margin-bottom: 10px;
+}
+
+nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav li {
+  display: inline;
+  padding-right: 10px;
+}
+
+nav a {
+  text-decoration: none;
+  color: inherit;
+}

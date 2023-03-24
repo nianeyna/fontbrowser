@@ -1,9 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
 import { FontBrowser } from "../types/defs";
-import { AvailableFeatures, Families, SampleTypeOptions, SearchField } from "./components";
 import { FontBrowserContexts } from "./contexts";
 import featureSpecification from '../resource/features.json';
 import getSampleText from '../frontendlogic/samples';
+import Layout from "./layout";
 
 declare global {
   interface Window {
@@ -14,7 +14,7 @@ declare global {
   }
 }
 
-export function Index() {
+export default function Index() {
   const [families, setFamilies] = useState<[string, Font[]][]>([]);
   const [fontDetails, setFontDetails] = useState<Map<string, FontDetails>>(new Map());
   const [sampleOptions, setSampleOptions] = useState(new FontBrowser.SampleTextOptions(FontBrowser.SampleType.Pangram));
@@ -42,10 +42,7 @@ export function Index() {
               <FontBrowserContexts.SampleTextContext.Provider value={sampleText}>
                 <FontBrowserContexts.FontFamiliesContext.Provider value={families}>
                   <FontBrowserContexts.FeatureSpecificationContext.Provider value={features}>
-                    <SearchField />
-                    <SampleTypeOptions />
-                    <AvailableFeatures />
-                    <Families />
+                    <Layout />
                   </FontBrowserContexts.FeatureSpecificationContext.Provider>
                 </FontBrowserContexts.FontFamiliesContext.Provider>
               </FontBrowserContexts.SampleTextContext.Provider>

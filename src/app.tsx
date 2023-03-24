@@ -1,4 +1,26 @@
 import { createRoot } from 'react-dom/client';
-import { Index } from './components/index';
+import { createHashRouter, RouterProvider } from 'react-router-dom';
+import Index from './components';
+import ErrorPage from './components/error';
+import Home from './components/home';
+import Settings from './components/settings';
 
-createRoot(document.getElementById('root')).render(<Index/>);
+const router = createHashRouter([
+  {
+    path: '/',
+    element: <Index />,
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: '/',
+        element: <Home />
+      },
+      {
+        path: 'settings',
+        element: <Settings />
+      }      
+    ]
+  },
+]);
+
+createRoot(document.getElementById('root')).render(<RouterProvider router={router} />);
