@@ -1,6 +1,6 @@
 import { LoremIpsum } from "lorem-ipsum";
-import { FontBrowser } from "./defs";
-import pangrams from './resource/pangrams.json';
+import { FontBrowser } from "../types/defs";
+import pangrams from '../resource/pangrams.json';
 
 export default function getSampleText(options: FontBrowser.SampleTextOptions) {
   switch (options.sampleType) {
