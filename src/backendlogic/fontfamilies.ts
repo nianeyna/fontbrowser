@@ -25,7 +25,7 @@ async function getFonts(fontFolders: FontFolder[]): Promise<Map<string, fontkit.
     await Promise.all(fontFolders.map(async (folder) => {
       try {
         // not bothering with path.join since glob requires forward slashes anyway
-        const files = await glob(`${folder.folderPath.replaceAll('\\', '/')}/**/*.{ttf,otf,woff,woff2}`);
+        const files = await glob(`${folder.folderPath.replaceAll('\\', '/')}${folder.subfolders ? '/**' : ''}/*.{ttf,otf,woff,woff2}`);
         paths.push(...files); 
       }
       catch (e) {

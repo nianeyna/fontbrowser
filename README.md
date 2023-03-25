@@ -13,3 +13,5 @@ This program was created in dialogue with members of the [renegade bindery](http
 # known issues
 
 The zoom in keyboard shortcut listed in the "View" menu doesn't work unless you also press the shift key. This is apparently a known electron issue that they have never fixed for some reason. I'm looking in to a workaround.
+
+On page load the font samples display without styles for a second before properly rendering.
