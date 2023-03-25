@@ -87,7 +87,9 @@ function addSystemFontFolders(fontFolders: FontFolder[]) {
       fontFolders.push({ folderPath: `${app.getPath('appData')}/../Local/Microsoft/Windows/Fonts`, subfolders: false });
       break;
     case 'darwin':
-      fontFolders.push({ folderPath: '$HOME/Library/Fonts', subfolders: false });
+      fontFolders.push({ folderPath: '/Library/Fonts', subfolders: true });
+      fontFolders.push({ folderPath: '/System/Library/Fonts', subfolders: true });
+      fontFolders.push({ folderPath: `${app.getPath('home')}/Library/Fonts`, subfolders: true });
       break;
     case 'linux':
       fontFolders.push({ folderPath: '/usr/share/fonts', subfolders: false });

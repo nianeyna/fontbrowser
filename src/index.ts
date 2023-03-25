@@ -70,7 +70,7 @@ app.whenReady().then(() => {
 });
 
 // IPC setups
-ipcMain.handle('font-families', async (): Promise<[string, Font[]][]> => await getFontFamilies(store.store.fontFolders));
+ipcMain.handle('font-families', async (): Promise<[string, Font[]][]> => await getFontFamilies(store.store.fontFolders || []));
 ipcMain.handle('font-features', async (_event, filePath: string): Promise<FontDetails> => await loadFontFeatures(filePath));
 ipcMain.handle('get-store-value', async () => store.store);
 ipcMain.handle('set-store-value', async (_event, settings: Settings) => store.set(settings));

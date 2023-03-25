@@ -5,7 +5,8 @@
             "type": "node",
             "request": "launch",
             "name": "Electron Main",
-            "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-nix",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run-script", "debug"],
             "windows": {
                 "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-win.cmd"
             },
