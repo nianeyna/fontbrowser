@@ -4,17 +4,22 @@ import { FontBrowserContexts } from "./contexts";
 import featureSpecification from '../resource/features.json';
 import getSampleText from '../frontendlogic/samples';
 import Layout from "./layout";
+import { useLocation } from "react-router-dom";
 
 declare global {
   interface Window {
     'api': {
       families: () => Promise<[string, Font[]][]>,
-      details: (fileName: string) => Promise<FontDetails>
+      details: (fileName: string) => Promise<FontDetails>,
+      getSettings: () => Promise<Settings>,
+      setSettings: (settings: Settings) => Promise<void>
     }
   }
 }
 
 export default function Index() {
+  const location = useLocation();
+  const [settings, setSettings] = useState<Settings>(null);
   const [families, setFamilies] = useState<[string, Font[]][]>([]);
   const [fontDetails, setFontDetails] = useState<Map<string, FontDetails>>(new Map());
   const [sampleOptions, setSampleOptions] = useState(new FontBrowser.SampleTextOptions(FontBrowser.SampleType.Pangram));
@@ -23,6 +28,14 @@ export default function Index() {
   const [activeFeatures, setActiveFeatures] = useState([]);
   const sampleText: string = useMemo(() => getSampleText(sampleOptions), [sampleOptions]);
   const features: Map<string, Feature> = useMemo(() => new Map(Object.entries(featureSpecification)), []);
+  useEffect(() => {
+    window.api.getSettings().then(result => setSettings(result));
+  }, [location]);
+  useEffect(() => {
+    if (settings) {
+      window.api.setSettings(settings);
+    }
+  }, [settings]);
   useEffect(() => {
     window.api.families().then(result => setFamilies(result));
   }, []);
@@ -42,7 +55,9 @@ export default function Index() {
               <FontBrowserContexts.SampleTextContext.Provider value={sampleText}>
                 <FontBrowserContexts.FontFamiliesContext.Provider value={families}>
                   <FontBrowserContexts.FeatureSpecificationContext.Provider value={features}>
-                    <Layout />
+                    <FontBrowserContexts.SettingsContext.Provider value={[settings, setSettings]}>
+                      <Layout />
+                    </FontBrowserContexts.SettingsContext.Provider>
                   </FontBrowserContexts.FeatureSpecificationContext.Provider>
                 </FontBrowserContexts.FontFamiliesContext.Provider>
               </FontBrowserContexts.SampleTextContext.Provider>

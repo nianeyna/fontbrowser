@@ -28,3 +28,12 @@ interface SearchAndFilterOptions {
     selectedFeaturesOnly: boolean,
     secretOpenTypeFeatures: boolean,
 }
+
+interface Settings {
+    fontFolders?: FontFolder[]
+}
+
+interface FontFolder {
+    folderPath: string,
+    subfolders: boolean
+}

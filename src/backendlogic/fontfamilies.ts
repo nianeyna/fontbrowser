@@ -1,9 +1,11 @@
 import fontkit from 'fontkit';
+import { app } from 'electron';
 import { glob } from "glob";
 import { FontBrowser } from "../types/defs";
 
-export async function getFontFamilies(): Promise<[string, Font[]][]> {
-  const fonts = await getFonts();
+export async function getFontFamilies(fontFolders: FontFolder[]): Promise<[string, Font[]][]> {
+  addSystemFontFolders(fontFolders);
+  const fonts = await getFonts(fontFolders);
   return sortFonts(fonts);
 }
 
@@ -16,12 +18,21 @@ export async function loadFontFeatures(filePath: string): Promise<FontDetails> {
   return new FontBrowser.FontDetailsConstructor(features, characters, characterString);
 }
 
-async function getFonts(): Promise<Map<string, fontkit.Font>> {
+async function getFonts(fontFolders: FontFolder[]): Promise<Map<string, fontkit.Font>> {
   const fonts: Map<string, fontkit.Font> = new Map();
-  const folder = getSystemFontFolder();
-  if (folder) {
-    // not bothering with path.join since glob requires forward slashes anyway
-    const paths = await glob(`${folder}/*.{ttf,otf,woff,woff2}`);
+  if (fontFolders.length > 0) {
+    const paths: string[] = [];
+    await Promise.all(fontFolders.map(async (folder) => {
+      try {
+        // not bothering with path.join since glob requires forward slashes anyway
+        const files = await glob(`${folder.folderPath.replaceAll('\\', '/')}/**/*.{ttf,otf,woff,woff2}`);
+        paths.push(...files); 
+      }
+      catch (e) {
+        console.log(folder);
+        console.log(e);
+      }
+    }));
     await Promise.all(paths.map(async (element) => {
       try {
         const font = await fontkit.open(element);
@@ -49,6 +60,7 @@ function sortFonts(fonts: Map<string, fontkit.Font>): [string, Font[]][] {
 
 function addFontToFamiliesMap(familiesMap: Map<string, Font[]>, element: [string, fontkit.Font]): void {
   const font = element[1];
+  if (!font.familyName) return; // sorry, poorly-formed font files
   if (!familiesMap.has(font.familyName)) {
     familiesMap.set(font.familyName, [])
   }
@@ -67,22 +79,20 @@ function sortSubfamily(subfamily: [string, Font[]]): void {
   });
 }
 
-function getSystemFontFolder(): string {
+function addSystemFontFolders(fontFolders: FontFolder[]) {
   const platform = process.platform;
-  let folder: string;
   switch (platform) {
     case 'win32':
-      folder = 'C:/Windows/Fonts';
+      fontFolders.push({ folderPath: 'C:/Windows/Fonts', subfolders: false });
+      fontFolders.push({ folderPath: `${app.getPath('appData')}/../Local/Microsoft/Windows/Fonts`, subfolders: false });
       break;
     case 'darwin':
-      folder = '$HOME/Library/Fonts';
+      fontFolders.push({ folderPath: '$HOME/Library/Fonts', subfolders: false });
       break;
     case 'linux':
-      folder = '/usr/share/fonts';
+      fontFolders.push({ folderPath: '/usr/share/fonts', subfolders: false });
       break;
     default:
       console.log(platform);
-      folder = '';
   }
-  return folder;
 }

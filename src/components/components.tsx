@@ -233,12 +233,16 @@ function getCodePointsFromString(searchString: string): number[] {
 
 function Subfamilies(props: { fonts: Font[] }) {
   return (
-    <ul>{props.fonts.map(font =>
-      <li key={font.fullName}>
-        <h4>{font.subfamilyName}</h4>
+    <ul>{props.fonts.map(font => {
+      const fontsWithSameName = props.fonts.filter(x => x.subfamilyName == font.subfamilyName);
+      if (fontsWithSameName.length > 1 && fontsWithSameName.findIndex(x => x.file == font.file) > 0) return;
+      const fileList = fontsWithSameName.map(x => x.file);
+      return (<li key={font.file}>
+        <h4 title={fileList.join('\n')}>{font.subfamilyName}</h4>
         <Features fullName={font.fullName} />
         <Sample fontName={font.fullName} filePath={font.file} />
-      </li>)}
+      </li>);
+    })}
     </ul>)
 }
 

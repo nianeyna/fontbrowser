@@ -1,5 +1,6 @@
 import { getFontFamilies, loadFontFeatures } from './backendlogic/fontfamilies';
 import { app, BrowserWindow, ipcMain, Menu, protocol } from 'electron';
+import ElectronStore from 'electron-store';
 import contextMenu from 'electron-context-menu';
 import url from 'url';
 import menu from './backendlogic/menu';
@@ -16,6 +17,8 @@ if (require('electron-squirrel-startup')) {
 }
 
 contextMenu();
+const store = new ElectronStore<Settings>();
+Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
 
 const createWindow = (): void => {
   // Create the browser window.
@@ -25,8 +28,6 @@ const createWindow = (): void => {
     },
   });
   
-  Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
-
   mainWindow.maximize();
 
   // and load the index.html of the app.
@@ -69,5 +70,7 @@ app.whenReady().then(() => {
 });
 
 // IPC setups
-ipcMain.handle('font-families', async (): Promise<[string, Font[]][]> => await getFontFamilies());
+ipcMain.handle('font-families', async (): Promise<[string, Font[]][]> => await getFontFamilies(store.store.fontFolders));
 ipcMain.handle('font-features', async (_event, filePath: string): Promise<FontDetails> => await loadFontFeatures(filePath));
+ipcMain.handle('get-store-value', async () => store.store);
+ipcMain.handle('set-store-value', async (_event, settings: Settings) => store.set(settings));

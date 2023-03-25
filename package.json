@@ -45,6 +45,7 @@
   "dependencies": {
     "electron-context-menu": "^3.6.1",
     "electron-squirrel-startup": "^1.0.0",
+    "electron-store": "^8.1.0",
     "fontkit": "^2.0.2",
     "glob": "^9.2.1",
     "lorem-ipsum": "^2.0.8",
