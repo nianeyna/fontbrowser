@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { Disclosure, Transition } from '@headlessui/react';
 import { FontBrowserContexts } from './contexts';
 import { FontBrowser } from '../types/defs';
 
@@ -47,9 +48,24 @@ function FeatureDescription(props: { feature: string }) {
   const context = useContext(FontBrowserContexts.FeatureSpecificationContext);
   const featureInfo = getFeatureInfo(props.feature, context);
   const featureDescription = featureInfo?.function ?? 'No available information';
-  const handleClick = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) =>
-    e.currentTarget.querySelector('aside').classList.toggle('hidden');
-  return <span onClick={handleClick}> (info)<aside dangerouslySetInnerHTML={{ __html: featureDescription }} className='feature-description hidden'></aside></span>
+  return (
+    <Disclosure>
+      <Disclosure.Button>
+        (info)
+      </Disclosure.Button>
+      <Transition
+        enter="transition duration-500 ease-out"
+        enterFrom="transform scale-95 opacity-0"
+        enterTo="transform scale-100 opacity-100"
+        leave="transition duration-400 ease-out"
+        leaveFrom="transform scale-100 opacity-100"
+        leaveTo="transform scale-95 opacity-0">
+        <Disclosure.Panel
+          dangerouslySetInnerHTML={{ __html: featureDescription }}>
+        </Disclosure.Panel>
+      </Transition>
+    </Disclosure>
+  );
 }
 
 function FeatureCheckbox(props: { feature: string }) {
@@ -264,9 +280,8 @@ function Sample(props: { fontName: string, filePath: string }) {
   const fontDetails = useContext(FontBrowserContexts.FontDetailsContext);
   const [activeFeatures] = useContext(FontBrowserContexts.ActiveFeaturesContext);
   const [characterString, setCharacterString] = useState('');
-  const handleClick = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
+  const handleClick = () => {
     setCharacterString(fontDetails.get(props.fontName)?.characterString);
-    e.currentTarget.parentElement.querySelector('aside').classList.toggle('hidden');
   };
   return (
     <div>
@@ -283,8 +298,22 @@ function Sample(props: { fontName: string, filePath: string }) {
       }}>
         {sampleText}
         <div>
-          <button onClick={handleClick}>View all code points</button>
-          <aside className='feature-description hidden'>{characterString}</aside>
+          <Disclosure>
+            <Disclosure.Button onClick={handleClick}>
+              View all code points
+            </Disclosure.Button>
+            <Transition
+              enter="transition duration-500 ease-out"
+              enterFrom="transform scale-95 opacity-0"
+              enterTo="transform scale-100 opacity-100"
+              leave="transition duration-400 ease-out"
+              leaveFrom="transform scale-100 opacity-100"
+              leaveTo="transform scale-95 opacity-0">
+              <Disclosure.Panel>
+                {characterString}
+              </Disclosure.Panel>
+            </Transition>
+          </Disclosure>
         </div>
       </div>
     </div>
