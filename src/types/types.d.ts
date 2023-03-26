@@ -11,15 +11,15 @@ interface FontDetails {
 }
 
 interface Feature {
-    friendlyName: string,
-    registeredBy: string,
-    function: string,
-    example: string,
-    implementation: string,
-    interface: string,
-    suggestion: string,
-    sensitivity: string,
-    interaction: string
+    friendlyName?: string,
+    registeredBy?: string,
+    function?: string,
+    example?: string,
+    implementation?: string,
+    interface?: string,
+    suggestion?: string,
+    sensitivity?: string,
+    interaction?: string
 }
 
 interface SearchAndFilterOptions {

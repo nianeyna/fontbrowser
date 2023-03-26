@@ -1,10 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { FontBrowser } from "../types/defs";
 import { FontBrowserContexts } from "./contexts";
 import featureSpecification from '../resource/features.json';
 import getSampleText from '../frontendlogic/samples';
 import Layout from "./layout";
-import { useLocation } from "react-router-dom";
 
 declare global {
   interface Window {
