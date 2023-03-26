@@ -38,7 +38,7 @@ export default function Index() {
   }, [settings]);
   useEffect(() => {
     window.api.families().then(result => setFamilies(result));
-  }, []);
+  }, [settings]);
   useEffect(() => {
     families.forEach(family => family[1].forEach(async font => {
       const details = await window.api.details(font.file);

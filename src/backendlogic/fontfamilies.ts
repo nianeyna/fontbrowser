@@ -92,7 +92,8 @@ function addSystemFontFolders(fontFolders: FontFolder[]) {
       fontFolders.push({ folderPath: `${app.getPath('home')}/Library/Fonts`, subfolders: true });
       break;
     case 'linux':
-      fontFolders.push({ folderPath: '/usr/share/fonts', subfolders: false });
+      fontFolders.push({ folderPath: '/usr/share/fonts', subfolders: true });
+      fontFolders.push({ folderPath: `${app.getPath('home')}/.fonts`, subfolders: true });
       break;
     default:
       console.log(platform);
