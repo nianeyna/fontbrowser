@@ -53,7 +53,7 @@ function sortFonts(fonts: Map<string, fontkit.Font>): [string, Font[]][] {
   const familiesMap: Map<string, Font[]> = new Map();
   fontsList.forEach(element => addFontToFamiliesMap(familiesMap, element));
   const families = Array.from(familiesMap.entries());
-  families.sort((a, b) => a[0].localeCompare(b[0]));
+  families.sort((a, b) => a[0].toString().localeCompare(b[0].toString()));
   families.forEach(element => sortSubfamily(element));
   return families;
 }
@@ -69,7 +69,7 @@ function addFontToFamiliesMap(familiesMap: Map<string, Font[]>, element: [string
 
 function sortSubfamily(subfamily: [string, Font[]]): void {
   const fonts = subfamily[1];
-  fonts.sort((a, b) => a.subfamilyName.localeCompare(b.subfamilyName));
+  fonts.sort((a, b) => a.subfamilyName.toString().localeCompare(b.subfamilyName.toString()));
   // always display regular style first
   fonts.forEach((font, index) => {
     if (font.subfamilyName == 'Regular') {
