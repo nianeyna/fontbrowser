@@ -10,7 +10,7 @@
             "windows": {
                 "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-win.cmd"
             },
-            "preLaunchTask": "npm: tailwind",
+            // "preLaunchTask": "npm: tailwind",
             "cwd": "${workspaceFolder}"
         }
     ]

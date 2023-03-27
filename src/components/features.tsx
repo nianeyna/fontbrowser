@@ -12,14 +12,36 @@ export function AllFeatures(): JSX.Element {
       .sort((a, b) => a.localeCompare(b))
   }, [displayedFonts, fontDetails]);
   return (
-    <details>
-      <summary>All Features</summary>
-      <ul>
-        {featureList.map(x =>
-          <FeatureCheckbox key={x} feature={x} />
-        )}
-      </ul>
-    </details>
+    <table width={'100%'}>
+      <tbody>
+        <Disclosure>
+          <tr>
+            <td>
+              <Disclosure.Button className='align-top'>
+                All Features
+              </Disclosure.Button>
+            </td>
+          </tr>
+          <tr>
+            <td colSpan={2}>
+              <Transition as='table' width={'100%'}
+                enter="transition duration-500 ease-out"
+                enterFrom="transform scale-95 opacity-0"
+                enterTo="transform scale-100 opacity-100"
+                leave="transition duration-400 ease-out"
+                leaveFrom="transform scale-100 opacity-100"
+                leaveTo="transform scale-95 opacity-0">
+                <Disclosure.Panel as='tbody'>
+                  {(featureList?.length ?? 0) > 0 && featureList?.map(x =>
+                    <FeatureCheckbox key={x} feature={x} />) ||
+                    <tr><td>No features available</td></tr>}
+                </Disclosure.Panel>
+              </Transition>
+            </td>
+          </tr>
+        </Disclosure>
+      </tbody>
+    </table>
   );
 }
 
@@ -27,14 +49,32 @@ export function FontFeatures(props: { fullName: string }): JSX.Element {
   const fontDetails = useContext(FontBrowserContexts.FontDetailsContext);
   const featureList = fontDetails.get(props.fullName)?.features
   return (
-    <details>
-      <summary>Features</summary>
-      <ul>
-        {featureList?.map(x =>
-          <FeatureCheckbox key={x} feature={x} />
-        )}
-      </ul>
-    </details>
+    <Disclosure>
+      <tr>
+        <td>
+          <Disclosure.Button className='align-top'>
+            Features
+          </Disclosure.Button>
+        </td>
+      </tr>
+      <tr>
+        <td colSpan={2}>
+          <Transition as='table' width={'100%'}
+            enter="transition duration-500 ease-out"
+            enterFrom="transform scale-95 opacity-0"
+            enterTo="transform scale-100 opacity-100"
+            leave="transition duration-400 ease-out"
+            leaveFrom="transform scale-100 opacity-100"
+            leaveTo="transform scale-95 opacity-0">
+            <Disclosure.Panel as='tbody'>
+              {(featureList?.length ?? 0) > 0 && featureList?.map(x =>
+                <FeatureCheckbox key={x} feature={x} />) ||
+                <tr><td>No features available</td></tr>}
+            </Disclosure.Panel>
+          </Transition>
+        </td>
+      </tr>
+    </Disclosure>
   );
 }
 
@@ -60,28 +100,32 @@ function FeatureCheckbox(props: { feature: string }): JSX.Element {
     !featureSpecification.get(props.feature)?.suggestion
       .includes('Control of the feature should not generally be exposed to the user.')) {
     return (
-      <li>
-        <label>
-          <input onChange={handleChanged} type={'checkbox'} checked={activeFeatures.includes(props.feature)} />
-          <span>{featureInfo.friendlyName}</span>
-        </label>
-        <Disclosure>
-          <Disclosure.Button>
-            (info)
-          </Disclosure.Button>
-          <Transition
-            enter="transition duration-500 ease-out"
-            enterFrom="transform scale-95 opacity-0"
-            enterTo="transform scale-100 opacity-100"
-            leave="transition duration-400 ease-out"
-            leaveFrom="transform scale-100 opacity-100"
-            leaveTo="transform scale-95 opacity-0">
-            <Disclosure.Panel
-              dangerouslySetInnerHTML={{ __html: featureInfo.function ?? 'No available information' }}>
-            </Disclosure.Panel>
-          </Transition>
-        </Disclosure>
-      </li>
+      <Disclosure>
+        <tr>
+          <td className='align-top'>
+            <label>
+              <input onChange={handleChanged} type={'checkbox'} checked={activeFeatures.includes(props.feature)} />
+              <span>{featureInfo.friendlyName}</span>
+            </label>
+            <Disclosure.Button className='float-right'>
+              info
+            </Disclosure.Button>
+          </td>
+          <td width={'60%'}>
+            <Transition
+              enter="transition duration-500 ease-out"
+              enterFrom="transform scale-95 opacity-0"
+              enterTo="transform scale-100 opacity-100"
+              leave="transition duration-400 ease-out"
+              leaveFrom="transform scale-100 opacity-100"
+              leaveTo="transform scale-95 opacity-0">
+              <Disclosure.Panel
+                dangerouslySetInnerHTML={{ __html: featureInfo.function ?? 'No available information' }}>
+              </Disclosure.Panel>
+            </Transition>
+          </td>
+        </tr>
+      </Disclosure>
     );
   }
 }

@@ -41,7 +41,7 @@ export default function Families() {
             : true); // don't filter if there is no search term
         if (filteredFonts.length > 0) {
           return <li key={familyName}>
-            <h3>{familyName}</h3>
+            <h3 className='text-lg font-bold'>{familyName}</h3>
             <Subfamilies fonts={filteredFonts} />
           </li>;
         }
@@ -52,61 +52,89 @@ export default function Families() {
 
 function Subfamilies(props: { fonts: Font[] }) {
   return (
-    <ul>{props.fonts.map(font => {
+    <ul className='ml-3'>{props.fonts.map(font => {
       const fontsWithSameName = props.fonts.filter(x => x.subfamilyName == font.subfamilyName);
       if (fontsWithSameName.length > 1 && fontsWithSameName.findIndex(x => x.file == font.file) > 0) return;
       const fileList = fontsWithSameName.map(x => x.file);
-      return (<li key={font.file}>
-        <h4 title={fileList.join('\n')}>{font.subfamilyName}</h4>
-        <FontFeatures fullName={font.fullName} />
-        <Sample fontName={font.fullName} filePath={font.file} />
-      </li>);
+      return (
+        <li key={font.file}>
+          <style>
+            {`@font-face {
+            font-family: "${font.fullName}";
+            src: url("font://${font.file}");
+          }`}
+          </style>
+          <div className='border rounded p-1 my-1'>
+            <table width={'100%'}>
+              <tbody>
+                <tr>
+                  <td className='align-top font-bold'>
+                    <h4 title={fileList.join('\n')}>{font.subfamilyName}</h4>
+                  </td>
+                  <td width={'60%'}>
+                    <Sample fontName={font.fullName} filePath={font.file} />
+                  </td>
+                </tr>
+                <tr>
+                  <CodePoints fontName={font.fullName} />
+                </tr>
+                <FontFeatures fullName={font.fullName} />
+              </tbody>
+            </table>
+          </div>
+        </li>
+      );
     })}
     </ul>)
 }
 
 function Sample(props: { fontName: string, filePath: string }) {
   const sampleText = useContext(FontBrowserContexts.SampleTextContext);
-  const fontDetails = useContext(FontBrowserContexts.FontDetailsContext);
   const [activeFeatures] = useContext(FontBrowserContexts.ActiveFeaturesContext);
-  const [characterString, setCharacterString] = useState('');
-  const handleClick = () => {
-    setCharacterString(fontDetails.get(props.fontName)?.characterString);
-  };
   return (
     <div>
-      <style>
-        {`@font-face {
-            font-family: "${props.fontName}";
-            src: url("font://${props.filePath}");
-          }`}
-      </style>
-      <div style={{
+      <div className='text-lg' style={{
         fontFamily: `"${props.fontName}"`,
         whiteSpace: 'pre-wrap',
         fontFeatureSettings: activeFeatures.map(x => `"${x}"`).join(', ')
       }}>
         {sampleText}
-        <div>
-          <Disclosure>
-            <Disclosure.Button onClick={handleClick}>
-              View all code points
-            </Disclosure.Button>
-            <Transition
-              enter="transition duration-500 ease-out"
-              enterFrom="transform scale-95 opacity-0"
-              enterTo="transform scale-100 opacity-100"
-              leave="transition duration-400 ease-out"
-              leaveFrom="transform scale-100 opacity-100"
-              leaveTo="transform scale-95 opacity-0">
-              <Disclosure.Panel>
-                {characterString}
-              </Disclosure.Panel>
-            </Transition>
-          </Disclosure>
-        </div>
       </div>
     </div>
+  );
+}
+
+function CodePoints(props: { fontName: string }): JSX.Element {
+  const [characterString, setCharacterString] = useState('');
+  const fontDetails = useContext(FontBrowserContexts.FontDetailsContext);
+  const [activeFeatures] = useContext(FontBrowserContexts.ActiveFeaturesContext);
+  const handleClick = () => {
+    setCharacterString(fontDetails.get(props.fontName)?.characterString);
+  };
+  return (
+    <Disclosure>
+      <td className='align-top'>
+        <Disclosure.Button onClick={handleClick}>
+          View all code points
+        </Disclosure.Button>
+      </td>
+      <td>
+        <Transition
+          enter="transition duration-500 ease-out"
+          enterFrom="transform scale-95 opacity-0"
+          enterTo="transform scale-100 opacity-100"
+          leave="transition duration-400 ease-out"
+          leaveFrom="transform scale-100 opacity-100"
+          leaveTo="transform scale-95 opacity-0">
+          <Disclosure.Panel className='text-lg' style={{
+            fontFamily: `"${props.fontName}"`,
+            fontFeatureSettings: activeFeatures.map(x => `"${x}"`).join(', ')
+          }}>
+            {characterString}
+          </Disclosure.Panel>
+        </Transition>
+      </td>
+    </Disclosure>
   );
 }
 

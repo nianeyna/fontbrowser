@@ -25,7 +25,7 @@ export default function Settings() {
   }
   return (
     <>
-      <h3>Folders to load fonts from:</h3>
+      <h3 className='font-bold'>Folders to load fonts from:</h3>
       <ul>
         {settings?.fontFolders?.map(x => {
           return (
@@ -35,7 +35,7 @@ export default function Settings() {
             </li>);
         })}
       </ul>
-      <h3>Add a folder</h3>
+      <h3 className='font-bold'>Add a folder</h3>
       <form onSubmit={handleFolderSubmit}>
         <label>
           <input onChange={handleFolderPathInput} type={'text'} value={folderInput.folderPath} />

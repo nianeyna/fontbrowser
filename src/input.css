@@ -2,23 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-nav {
-  border-bottom: 1px solid black;
-  margin-bottom: 10px;
+html {
+  font-size: 16pt;
 }
 
-nav ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
+body {
+  @apply font-serif
 }
 
-nav li {
-  display: inline;
-  padding-right: 10px;
+input {
+  @apply border rounded m-1
 }
 
-nav a {
-  text-decoration: none;
-  color: inherit;
+button {
+  @apply border rounded m-1 px-1
 }

@@ -6,9 +6,11 @@ import SearchOptions from "./searchoptions";
 export default function Home() {
   return (
     <>
-      <SearchOptions />
-      <SampleOptions />
-      <AllFeatures />
+      <div className="border rounded p-2 mb-3">
+        <SearchOptions />
+        <SampleOptions />
+        <AllFeatures />
+      </div>
       <Families />
     </>
   );
