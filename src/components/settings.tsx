@@ -23,6 +23,9 @@ export default function Settings() {
     const newFolderList = [...settings.fontFolders].filter(x => x.folderPath != folder);
     setSettings({...settings, fontFolders: newFolderList});
   }
+  const handleDarkModeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSettings({ ...settings, darkMode: e.target.checked });
+  }
   return (
     <>
       <h3 className='font-bold'>Folders to load fonts from:</h3>
@@ -47,6 +50,10 @@ export default function Settings() {
         </label>
         <button type='submit'>Add</button>
       </form>
+      <label>
+        <input onChange={handleDarkModeChange} type={'checkbox'} checked={settings?.darkMode == true} />
+        Dark mode
+      </label>
     </>
   );
 }

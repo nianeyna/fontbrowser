@@ -30,7 +30,8 @@ interface SearchAndFilterOptions {
 }
 
 interface Settings {
-    fontFolders?: FontFolder[]
+    fontFolders?: FontFolder[],
+    darkMode?: boolean
 }
 
 interface FontFolder {

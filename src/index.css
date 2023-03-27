@@ -595,8 +595,8 @@ video {
   vertical-align: top;
 }
 
-.align-middle {
-  vertical-align: middle;
+.font-serif {
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
 .text-lg {
@@ -640,20 +640,89 @@ html {
   font-size: 16pt;
 }
 
-body {
-  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-}
-
 input {
-  margin: 0.25rem;
-  border-radius: 0.25rem;
-  border-width: 1px;
-}
-
-button {
   margin: 0.25rem;
   border-radius: 0.25rem;
   border-width: 1px;
   padding-left: 0.25rem;
   padding-right: 0.25rem;
+  accent-color: #13424D;
+}
+
+@media (prefers-color-scheme: dark) {
+  input {
+    --tw-border-opacity: 1;
+    border-color: rgb(255 255 255 / var(--tw-border-opacity));
+    --tw-bg-opacity: 1;
+    background-color: rgb(16 55 64 / var(--tw-bg-opacity));
+    accent-color: #FF8C00;
+  }
+}
+
+input[type=text]:focus {
+  outline-color: #13424D;
+}
+
+@media (prefers-color-scheme: dark) {
+  input[type=text]:focus {
+    --tw-border-opacity: 1;
+    border-color: rgb(255 140 0 / var(--tw-border-opacity));
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+}
+
+textarea {
+  margin: 0.25rem;
+  resize: both;
+  border-radius: 0.25rem;
+  border-width: 1px;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+textarea:focus {
+  outline-color: #13424D;
+}
+
+@media (prefers-color-scheme: dark) {
+  textarea {
+    --tw-border-opacity: 1;
+    border-color: rgb(255 255 255 / var(--tw-border-opacity));
+    --tw-bg-opacity: 1;
+    background-color: rgb(16 55 64 / var(--tw-bg-opacity));
+  }
+
+  textarea:focus {
+    --tw-border-opacity: 1;
+    border-color: rgb(255 140 0 / var(--tw-border-opacity));
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+}
+
+button,[type=button],[type=submit] {
+  margin: 0.25rem;
+  border-radius: 0.25rem;
+  border-width: 1px;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  button,[type=button],[type=submit] {
+    border-style: none;
+    --tw-bg-opacity: 1;
+    background-color: rgb(16 55 64 / var(--tw-bg-opacity));
+  }
+
+  .dark\:bg-nia-body {
+    --tw-bg-opacity: 1;
+    background-color: rgb(19 66 77 / var(--tw-bg-opacity));
+  }
+
+  .dark\:text-nia-text {
+    --tw-text-opacity: 1;
+    color: rgb(255 255 255 / var(--tw-text-opacity));
+  }
 }

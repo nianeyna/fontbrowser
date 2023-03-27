@@ -6,14 +6,18 @@ html {
   font-size: 16pt;
 }
 
-body {
-  @apply font-serif
-}
-
 input {
-  @apply border rounded m-1
+  @apply border rounded m-1 px-1 accent-nia-body dark:bg-nia-primary dark:border-nia-text dark:accent-nia-accent
 }
 
-button {
-  @apply border rounded m-1 px-1
+input[type=text] {
+  @apply focus:outline-nia-body dark:focus:outline-none dark:focus:border-nia-accent
+}
+
+textarea {
+  @apply rounded resize m-1 px-1 focus:outline-nia-body dark:focus:outline-none dark:bg-nia-primary border dark:border-nia-text  dark:focus:border-nia-accent
+}
+
+button,[type=button],[type=submit] {
+  @apply rounded m-1 px-1 border dark:border-none dark:bg-nia-primary
 }
