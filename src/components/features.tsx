@@ -9,7 +9,7 @@ export function AllFeatures(): JSX.Element {
     return [...new Set([...fontDetails]
       .filter(x => displayedFonts.includes(x[0]))
       .map(x => x[1].features).flat())]
-      .sort((a, b) => a.localeCompare(b))
+      .sort((a, b) => a?.toString()?.localeCompare(b?.toString()))
   }, [displayedFonts, fontDetails]);
   return (
     <table width={'100%'}>
@@ -133,12 +133,12 @@ function FeatureCheckbox(props: { feature: string }): JSX.Element {
 function getFeatureInfo(feature: string, context: Map<string, Feature>): Feature {
   // I don't love this special-casing but I also don't want to duplicate
   // the character variant entry in the resource file one hundred times
-  if (feature.startsWith('cv')) {
+  if (feature?.startsWith('cv')) {
     const featureInfo = context.get('cvXX');
     const friendlyName = featureInfo.friendlyName.replace('%NUMBER%', feature.slice(2));
     return { ...featureInfo, friendlyName: friendlyName }
   }
-  if (feature.startsWith('ss')) {
+  if (feature?.startsWith('ss')) {
     const featureInfo = context.get('ssXX');
     const friendlyName = featureInfo.friendlyName.replace('%NUMBER%', feature.slice(2));
     return { ...featureInfo, friendlyName: friendlyName }

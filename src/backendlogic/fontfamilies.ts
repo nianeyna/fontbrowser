@@ -1,7 +1,6 @@
 import fontkit from 'fontkit';
 import { app } from 'electron';
 import { glob } from "glob";
-import { FontBrowser } from "../types/defs";
 
 export async function getFontFamilies(fontFolders: FontFolder[]): Promise<[string, Font[]][]> {
   addSystemFontFolders(fontFolders);
@@ -10,12 +9,19 @@ export async function getFontFamilies(fontFolders: FontFolder[]): Promise<[strin
 }
 
 export async function loadFontFeatures(filePath: string): Promise<FontDetails> {
-  const font = await fontkit.open(filePath);
-  const features = [...new Set(font.availableFeatures)]; // remove duplicates
-  const characters = font.characterSet;
-  // may not be necessary to do this on the backend... but also no reason not to afaik
-  const characterString = [...String.fromCodePoint(...characters)].join(' ');
-  return new FontBrowser.FontDetailsConstructor(features, characters, characterString);
+  try {
+    const font = await fontkit.open(filePath);
+    const features = [...new Set(font.availableFeatures)]; // remove duplicates
+    const characters = font.characterSet;
+    // may not be necessary to do this on the backend... but also no reason not to afaik
+    const characterString = [...String.fromCodePoint(...characters)].join(' ');
+    return { features: features, characters: characters, characterString: characterString };
+  }
+  catch (e) {
+    console.log('Error loading font at ' + filePath);
+    console.log(e);
+    return { features: null, characters: null, characterString: null };
+  }
 }
 
 async function getFonts(fontFolders: FontFolder[]): Promise<Map<string, fontkit.Font>> {
@@ -26,7 +32,7 @@ async function getFonts(fontFolders: FontFolder[]): Promise<Map<string, fontkit.
       try {
         // not bothering with path.join since glob requires forward slashes anyway
         const files = await glob(`${folder.folderPath.replaceAll('\\', '/')}${folder.subfolders ? '/**' : ''}/*.{ttf,otf,woff,woff2}`);
-        paths.push(...files); 
+        paths.push(...files);
       }
       catch (e) {
         console.log(folder);
@@ -59,20 +65,26 @@ function sortFonts(fonts: Map<string, fontkit.Font>): [string, Font[]][] {
 }
 
 function addFontToFamiliesMap(familiesMap: Map<string, Font[]>, element: [string, fontkit.Font]): void {
-  const font = element[1];
-  if (!font.familyName) return; // sorry, poorly-formed font files
-  if (!familiesMap.has(font.familyName)) {
-    familiesMap.set(font.familyName, [])
+  try {
+    const font = element[1];
+    if (!font.familyName) return; // sorry, poorly-formed font files
+    if (!familiesMap.has(font.familyName)) {
+      familiesMap.set(font.familyName, [])
+    }
+    familiesMap.get(font.familyName)?.push({ file: element[0], fullName: font.fullName, subfamilyName: font.subfamilyName });
   }
-  familiesMap.get(font.familyName)?.push(new FontBrowser.FontConstructor(element[0], font.fullName, font.subfamilyName));
+  catch (e) {
+    console.log('Error adding font to families map. File path: ' + element[0]);
+    console.log(e);
+  }
 }
 
 function sortSubfamily(subfamily: [string, Font[]]): void {
   const fonts = subfamily[1];
-  fonts.sort((a, b) => a.subfamilyName.toString().localeCompare(b.subfamilyName.toString()));
+  fonts?.sort((a, b) => a.subfamilyName.toString().localeCompare(b.subfamilyName.toString()));
   // always display regular style first
-  fonts.forEach((font, index) => {
-    if (font.subfamilyName == 'Regular') {
+  fonts?.forEach((font, index) => {
+    if (font?.subfamilyName == 'Regular') {
       fonts.splice(index, 1);
       fonts.unshift(font);
     }

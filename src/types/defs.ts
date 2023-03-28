@@ -41,26 +41,4 @@ export namespace FontBrowser {
       this.customText = customText;
     }
   }
-
-  export class FontConstructor implements Font {
-    file: string;
-    fullName: string;
-    subfamilyName: string;
-    constructor(file: string, fullName: string, subfamilyName: string) {
-      this.file = file;
-      this.fullName = fullName;
-      this.subfamilyName = subfamilyName;
-    }
-  }
-
-  export class FontDetailsConstructor implements FontDetails {
-    features: string[];
-    characters: number[];
-    characterString: string;
-    constructor(features: string[], characters: number[], characterString: string) {
-      this.features = features;
-      this.characters = characters;
-      this.characterString = characterString;
-    }
-  }
 }
