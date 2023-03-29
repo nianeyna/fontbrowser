@@ -2,6 +2,8 @@ import { useContext, useEffect, useState } from 'react';
 import { Disclosure, Transition } from '@headlessui/react';
 import { FontBrowserContexts } from './contexts';
 import { FontFeatures } from './features';
+import { FontBrowser } from '../types/defs';
+import path from 'path';
 
 export default function Families() {
   const families = useContext(FontBrowserContexts.FontFamiliesContext);
@@ -56,12 +58,13 @@ function Subfamilies(props: { fonts: Font[] }) {
       const fontsWithSameName = props.fonts.filter(x => x.subfamilyName == font.subfamilyName);
       if (fontsWithSameName.length > 1 && fontsWithSameName.findIndex(x => x.file == font.file) > 0) return;
       const fileList = fontsWithSameName.map(x => x.file);
+      const fontType = getFontDescriptorFromExtension(path.parse(font.file).ext);
       return (
         <li key={font.file}>
           <style>
             {`@font-face {
             font-family: "${font.fullName}";
-            src: url("font://${font.file}");
+            src: url("font://${font.file}") format(${fontType});
           }`}
           </style>
           <div className='border rounded p-1 my-1'>
@@ -144,4 +147,20 @@ function getCodePointsFromString(searchString: string): number[] {
     codePoints.push(codePoint.codePointAt(0));
   }
   return codePoints;
+}
+
+function getFontDescriptorFromExtension(ext: string): string {
+  switch (ext) {
+    case '.ttf':
+      return 'truetype';
+    case '.otf':
+      return 'opentype';
+    case '.woff':
+      return 'woff';
+    case '.woff2':
+      return 'woff2';
+    default:
+      console.log(ext);
+      throw new FontBrowser.FontBrowserError('Invalid font extension.')
+  }
 }
