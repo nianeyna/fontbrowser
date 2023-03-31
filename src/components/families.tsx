@@ -1,9 +1,11 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { Disclosure, Transition } from '@headlessui/react';
 import { FontBrowserContexts } from './contexts';
 import { FontFeatures } from './features';
 import { FontBrowser } from '../types/defs';
 import path from 'path';
+import TagList from './taglist';
+import TagAdd from './tagadd';
 
 export default function Families() {
   const families = useContext(FontBrowserContexts.FontFamiliesContext);
@@ -53,12 +55,15 @@ export default function Families() {
 }
 
 function Subfamilies(props: { fonts: Font[] }) {
+  const [settings] = useContext(FontBrowserContexts.SettingsContext);
+  const allTags = useMemo(() => { return settings?.tags }, [settings]);
   return (
     <ul className='ml-3'>{props.fonts.map(font => {
       const fontsWithSameName = props.fonts.filter(x => x.subfamilyName == font.subfamilyName);
       if (fontsWithSameName.length > 1 && fontsWithSameName.findIndex(x => x.file == font.file) > 0) return;
       const fileList = fontsWithSameName.map(x => x.file);
       const fontType = getFontDescriptorFromExtension(path.parse(font.file).ext);
+      const tagList = allTags?.find(x => x[0] == font.fullName);
       return (
         <li key={font.file}>
           <style>
@@ -82,6 +87,14 @@ function Subfamilies(props: { fonts: Font[] }) {
                   <CodePoints fontName={font.fullName} />
                 </tr>
                 <FontFeatures fullName={font.fullName} />
+                {!!tagList && tagList[1].length > 0 &&
+                  <tr>
+                    <TagList fullName={font.fullName} tagList={tagList[1]} />
+                  </tr>
+                }
+                <tr>
+                  <TagAdd fullName={font.fullName} />
+                </tr>
               </tbody>
             </table>
           </div>

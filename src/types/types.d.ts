@@ -30,6 +30,7 @@ interface SearchAndFilterOptions {
 }
 
 interface Settings {
+    tags?: [string, string[]][],
     fontFolders?: FontFolder[],
     darkMode?: boolean
 }
