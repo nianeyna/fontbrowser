@@ -37,6 +37,11 @@ export default function Index() {
     }
   }, [settings]);
   useEffect(() => {
+    if (!searchOptions && settings?.searchOptions) {
+      setSearchOptions(settings.searchOptions);
+    }
+  }, [settings]);
+  useEffect(() => {
     window.api.families().then(result => setFamilies(result));
   }, [settings]);
   useEffect(() => {

@@ -9,6 +9,7 @@ import TagAdd from './tagadd';
 
 export default function Families() {
   const families = useContext(FontBrowserContexts.FontFamiliesContext);
+  const [settings] = useContext(FontBrowserContexts.SettingsContext);
   const fontDetails = useContext(FontBrowserContexts.FontDetailsContext);
   const [activeFeatures] = useContext(FontBrowserContexts.ActiveFeaturesContext);
   const [searchOptions] = useContext(FontBrowserContexts.SearchTermContext);
@@ -29,7 +30,21 @@ export default function Families() {
         .filter(subfamily => searchOptions?.characters
           ? getCodePointsFromString(searchOptions.characters)
             .every(point => fontDetails.get(subfamily.fullName).characters.includes(point))
-          : true);
+          : true)
+        .filter(subfamily => {
+          const fontEntry = settings?.tags?.find(x => x[0] == subfamily.fullName);
+          const includedTags = searchOptions?.includedTags;
+          const excludedTags = searchOptions?.excludedTags;
+          if (Array.isArray(fontEntry) && fontEntry[1].length > 0) { // font has any tags at all
+            const tags = fontEntry[1];
+            return (!includedTags || includedTags.length <= 0 || tags.some(tag => includedTags.includes(tag)))
+              && (!excludedTags || excludedTags.length <= 0 || tags.every(tag => !excludedTags.includes(tag)))
+          }
+          else if (includedTags && includedTags.length > 0) { // included tags specified
+            return false;
+          }
+          return true;
+        });
       return [familyName, filteredFonts];
     });
     setFilteredFamilies(filtered);
@@ -38,34 +53,27 @@ export default function Families() {
   return (
     <ul>
       {filteredFamilies.map(family => {
-        const familyName = family[0];
-        const filteredFonts = family[1]
-          .filter(subfamily => searchTerm
-            ? subfamily.fullName.toLowerCase().includes(searchTerm)
-            : true); // don't filter if there is no search term
-        if (filteredFonts.length > 0) {
-          return <li key={familyName}>
-            <h3 className='text-lg font-bold'>{familyName}</h3>
-            <Subfamilies fonts={filteredFonts} />
+        if (family[1].length > 0) {
+          return <li key={family[0]}>
+            <h3 className='text-lg font-bold'>{family[0]}</h3>
+            <Subfamilies fonts={family[1]} />
           </li>;
         }
-      })}
+      }
+      )}
     </ul>
   );
 }
 
 function Subfamilies(props: { fonts: Font[] }) {
-  const [settings] = useContext(FontBrowserContexts.SettingsContext);
-  const allTags = useMemo(() => { return settings?.tags }, [settings]);
   return (
     <ul className='ml-3'>{props.fonts.map(font => {
-      const fontsWithSameName = props.fonts.filter(x => x.subfamilyName == font.subfamilyName);
+      const fontsWithSameName = props.fonts.filter(x => x.fullName == font.fullName);
       if (fontsWithSameName.length > 1 && fontsWithSameName.findIndex(x => x.file == font.file) > 0) return;
       const fileList = fontsWithSameName.map(x => x.file);
       const fontType = getFontDescriptorFromExtension(path.parse(font.file).ext);
-      const tagList = allTags?.find(x => x[0] == font.fullName);
       return (
-        <li key={font.file}>
+        <li key={font.fullName}>
           <style>
             {`@font-face {
             font-family: "${font.fullName}";
@@ -77,24 +85,16 @@ function Subfamilies(props: { fonts: Font[] }) {
               <tbody>
                 <tr>
                   <td className='align-top font-bold'>
-                    <h4 title={fileList.join('\n')}>{font.subfamilyName}</h4>
+                    <h4 title={`${font.fullName}\n${fileList.join('\n')}`}>{font.subfamilyName}</h4>
                   </td>
                   <td width={'60%'}>
-                    <Sample fontName={font.fullName} filePath={font.file} />
+                    <Sample fullName={font.fullName} />
                   </td>
                 </tr>
-                <tr>
-                  <CodePoints fontName={font.fullName} />
-                </tr>
+                <CodePoints fullName={font.fullName} />
                 <FontFeatures fullName={font.fullName} />
-                {!!tagList && tagList[1].length > 0 &&
-                  <tr>
-                    <TagList fullName={font.fullName} tagList={tagList[1]} />
-                  </tr>
-                }
-                <tr>
-                  <TagAdd fullName={font.fullName} />
-                </tr>
+                <TagList fullName={font.fullName} />
+                <TagAdd fullName={font.fullName} />
               </tbody>
             </table>
           </div>
@@ -104,13 +104,13 @@ function Subfamilies(props: { fonts: Font[] }) {
     </ul>)
 }
 
-function Sample(props: { fontName: string, filePath: string }) {
+function Sample(props: { fullName: string }) {
   const sampleText = useContext(FontBrowserContexts.SampleTextContext);
   const [activeFeatures] = useContext(FontBrowserContexts.ActiveFeaturesContext);
   return (
     <div>
       <div className='text-lg' style={{
-        fontFamily: `"${props.fontName}"`,
+        fontFamily: `"${props.fullName}"`,
         whiteSpace: 'pre-wrap',
         fontFeatureSettings: activeFeatures.map(x => `"${x}"`).join(', ')
       }}>
@@ -120,37 +120,39 @@ function Sample(props: { fontName: string, filePath: string }) {
   );
 }
 
-function CodePoints(props: { fontName: string }): JSX.Element {
+function CodePoints(props: { fullName: string }): JSX.Element {
   const [characterString, setCharacterString] = useState('');
   const fontDetails = useContext(FontBrowserContexts.FontDetailsContext);
   const [activeFeatures] = useContext(FontBrowserContexts.ActiveFeaturesContext);
   const handleClick = () => {
-    setCharacterString(fontDetails.get(props.fontName)?.characterString);
+    setCharacterString(fontDetails.get(props.fullName)?.characterString);
   };
   return (
-    <Disclosure>
-      <td className='align-top'>
-        <Disclosure.Button onClick={handleClick}>
-          View all code points
-        </Disclosure.Button>
-      </td>
-      <td>
-        <Transition
-          enter="transition duration-500 ease-out"
-          enterFrom="transform scale-95 opacity-0"
-          enterTo="transform scale-100 opacity-100"
-          leave="transition duration-400 ease-out"
-          leaveFrom="transform scale-100 opacity-100"
-          leaveTo="transform scale-95 opacity-0">
-          <Disclosure.Panel className='text-lg' style={{
-            fontFamily: `"${props.fontName}"`,
-            fontFeatureSettings: activeFeatures.map(x => `"${x}"`).join(', ')
-          }}>
-            {characterString}
-          </Disclosure.Panel>
-        </Transition>
-      </td>
-    </Disclosure>
+    <tr>
+      <Disclosure>
+        <td className='align-top'>
+          <Disclosure.Button onClick={handleClick}>
+            View all code points
+          </Disclosure.Button>
+        </td>
+        <td>
+          <Transition
+            enter="transition duration-500 ease-out"
+            enterFrom="transform scale-95 opacity-0"
+            enterTo="transform scale-100 opacity-100"
+            leave="transition duration-400 ease-out"
+            leaveFrom="transform scale-100 opacity-100"
+            leaveTo="transform scale-95 opacity-0">
+            <Disclosure.Panel className='text-lg' style={{
+              fontFamily: `"${props.fullName}"`,
+              fontFeatureSettings: activeFeatures.map(x => `"${x}"`).join(', ')
+            }}>
+              {characterString}
+            </Disclosure.Panel>
+          </Transition>
+        </td>
+      </Disclosure>
+    </tr>
   );
 }
 

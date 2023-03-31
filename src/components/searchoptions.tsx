@@ -1,7 +1,8 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { FontBrowserContexts } from "./contexts";
 
 export default function SearchOptions() {
+  const [settings, setSettings] = useContext(FontBrowserContexts.SettingsContext);
   const [searchOptions, setSearchOptions] = useContext(FontBrowserContexts.SearchTermContext);
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) =>
     setSearchOptions({ ...searchOptions, searchTerm: e.target.value });
@@ -11,8 +12,12 @@ export default function SearchOptions() {
     setSearchOptions({ ...searchOptions, selectedFeaturesOnly: e.target.checked });
   const handleSecretTypeInput = (e: React.ChangeEvent<HTMLInputElement>) =>
     setSearchOptions({ ...searchOptions, secretOpenTypeFeatures: e.target.checked });
+  const handleSetDefault = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+    setSettings({ ...settings, searchOptions: {...searchOptions} })
+  }
   return (
-    <form>
+    <form className='border-b'>
       <div>
         <label>
           <input onChange={handleSearchInput} type={'text'} value={searchOptions?.searchTerm ?? ''} />
@@ -25,6 +30,8 @@ export default function SearchOptions() {
           Character search
         </label>
       </div>
+      <IncludedTags />
+      <ExcludedTags />
       <div>
         <label>
           <input onChange={handleSelectedTypeInput} type={'checkbox'} checked={searchOptions?.selectedFeaturesOnly ?? false} />
@@ -37,6 +44,93 @@ export default function SearchOptions() {
           Reveal OpenType features that are not meant to be adjustable
         </label>
       </div>
+      <button onClick={handleSetDefault}>Set these options as default</button>
     </form>
   );
+}
+
+function IncludedTags() {
+  const [tagName, setTagName] = useState('');
+  const [searchOptions, setSearchOptions] = useContext(FontBrowserContexts.SearchTermContext);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTagName(e.target.value);
+  }
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, tagName: string) => {
+    e.preventDefault();
+    setSearchOptions({ ...searchOptions, includedTags: searchOptions.includedTags.filter(x => x != tagName) });
+  }
+  const handleAdd = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+    if (tagName) {
+      const includedTags = searchOptions?.includedTags;
+      if (Array.isArray(includedTags)) {
+        includedTags.push(tagName);
+        setSearchOptions({ ...searchOptions, includedTags: [...new Set(includedTags.sort((a, b) => a.localeCompare(b)))] });
+      }
+      else {
+        setSearchOptions({ ...searchOptions, includedTags: [tagName] });
+      }
+      setTagName('');      
+    }
+  }
+  return (
+    <div>
+      <h3>Included Tags</h3>
+      <ul>
+        {searchOptions?.includedTags?.map(tag => {
+          return (
+            <li className='inline' key={tag}>
+              “{tag}”
+              <button onClick={(e) => handleClick(e, tag)}>x</button>
+            </li>
+          )
+        })}
+      </ul>
+      <input onChange={handleChange} type={'text'} value={tagName} />
+      <button onClick={handleAdd}>Add</button>
+    </div>
+  )
+}
+
+function ExcludedTags() {
+  const [tagName, setTagName] = useState('');
+  const [searchOptions, setSearchOptions] = useContext(FontBrowserContexts.SearchTermContext);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTagName(e.target.value);
+  }
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, tagName: string) => {
+    e.preventDefault();
+    setSearchOptions({ ...searchOptions, excludedTags: searchOptions.excludedTags.filter(x => x != tagName) });
+  }
+  const handleAdd = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+    if (tagName) {
+      const excludedTags = searchOptions?.excludedTags;
+      if (Array.isArray(excludedTags)) {
+        excludedTags.push(tagName);
+        setSearchOptions({ ...searchOptions, excludedTags: [...new Set(excludedTags.sort((a, b) => a.localeCompare(b)))] });
+      }
+      else {
+        setSearchOptions({ ...searchOptions, excludedTags: [tagName] });
+      }
+      setTagName('');      
+    }
+  }
+  return (
+    <div>
+      <h3>Excluded Tags</h3>
+      <ul>
+        {searchOptions?.excludedTags?.map(tag => {
+          return (
+            <li key={tag}>
+              “{tag}”
+              <button onClick={(e) => handleClick(e, tag)}>x</button>
+            </li>
+          )
+        })}
+      </ul>
+      <input onChange={handleChange} type={'text'} value={tagName} />
+      <button onClick={handleAdd}>Add</button>
+    </div>
+  )
 }

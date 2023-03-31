@@ -34,26 +34,28 @@ export default function TagAdd(props: { fullName: string }) {
     setTagName('');
   }
   return (
-    <Disclosure>
-      <td className='align-top'>
-        <Disclosure.Button>
-          Add tag
-        </Disclosure.Button>
-      </td>
-      <td width={'60%'}>
-        <Transition
-          enter="transition duration-500 ease-out"
-          enterFrom="transform scale-95 opacity-0"
-          enterTo="transform scale-100 opacity-100"
-          leave="transition duration-400 ease-out"
-          leaveFrom="transform scale-100 opacity-100"
-          leaveTo="transform scale-95 opacity-0">
-          <Disclosure.Panel>
-            <input onChange={handleChange} type={'text'} value={tagName} />
-            <button onClick={handleAdd}>Add</button>
-          </Disclosure.Panel>
-        </Transition>
-      </td>
-    </Disclosure>
+    <tr>
+      <Disclosure>
+        <td className='align-top'>
+          <Disclosure.Button>
+            Add tag
+          </Disclosure.Button>
+        </td>
+        <td width={'60%'}>
+          <Transition
+            enter="transition duration-500 ease-out"
+            enterFrom="transform scale-95 opacity-0"
+            enterTo="transform scale-100 opacity-100"
+            leave="transition duration-400 ease-out"
+            leaveFrom="transform scale-100 opacity-100"
+            leaveTo="transform scale-95 opacity-0">
+            <Disclosure.Panel>
+              <input onChange={handleChange} type={'text'} value={tagName} />
+              <button onClick={handleAdd}>Add</button>
+            </Disclosure.Panel>
+          </Transition>
+        </td>
+      </Disclosure>
+    </tr>
   );
 }

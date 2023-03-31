@@ -25,11 +25,14 @@ interface Feature {
 interface SearchAndFilterOptions {
     searchTerm?: string,
     characters?: string,
+    includedTags: string[],
+    excludedTags: string[],
     selectedFeaturesOnly: boolean,
-    secretOpenTypeFeatures: boolean,
+    secretOpenTypeFeatures: boolean
 }
 
 interface Settings {
+    searchOptions?: SearchAndFilterOptions,
     tags?: [string, string[]][],
     fontFolders?: FontFolder[],
     darkMode?: boolean
