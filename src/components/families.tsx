@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Disclosure, Transition } from '@headlessui/react';
 import { FontBrowserContexts } from './contexts';
 import { FontFeatures } from './features';
@@ -165,7 +165,7 @@ function getCodePointsFromString(searchString: string): number[] {
 }
 
 function getFontDescriptorFromExtension(ext: string): string {
-  switch (ext) {
+  switch (ext.toLowerCase()) {
     case '.ttf':
       return 'truetype';
     case '.otf':
