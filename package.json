@@ -1,7 +1,7 @@
 {
   "name": "fontbrowser",
   "productName": "fontbrowser",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "View and organize fonts",
   "main": ".webpack/main",
   "scripts": {
