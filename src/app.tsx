@@ -8,7 +8,7 @@ import Settings from './components/settings';
 const router = createHashRouter([
   {
     path: '/',
-    element: <Index />,
+    element: <Index linkedFonts={[]} />,
     errorElement: <ErrorPage />,
     children: [
       {

@@ -39,7 +39,7 @@ const config: ForgeConfig = {
           owner: 'nianeyna',
           name: 'fontbrowser'
         },
-        draft: false
+        draft: true
       }
     }
   ]

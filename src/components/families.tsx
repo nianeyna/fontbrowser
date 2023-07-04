@@ -1,8 +1,9 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { Disclosure, Transition } from '@headlessui/react';
 import { FontBrowserContexts } from './contexts';
 import { FontFeatures } from './features';
 import { FontBrowser } from '../types/defs';
+import { FadeLoader } from 'react-spinners';
 import path from 'path';
 import TagList from './taglist';
 import TagAdd from './tagadd';
@@ -14,9 +15,8 @@ export default function Families() {
   const [activeFeatures] = useContext(FontBrowserContexts.ActiveFeaturesContext);
   const [searchOptions] = useContext(FontBrowserContexts.SearchTermContext);
   const [_, setDisplayedFonts] = useContext(FontBrowserContexts.DisplayedFontsContext);
-  const [filteredFamilies, setFilteredFamilies] = useState<[string, Font[]][]>([]);
   const searchTerm = searchOptions?.searchTerm?.toLowerCase();
-  useEffect(() => {
+  const filteredFamilies = useMemo(() => {
     const filtered: [string, Font[]][] = families.map(family => {
       const familyName = family[0];
       const filteredFonts = family[1]
@@ -47,9 +47,14 @@ export default function Families() {
         });
       return [familyName, filteredFonts];
     });
-    setFilteredFamilies(filtered);
-    setDisplayedFonts(filtered.map(family => family[1]).flat().map(font => font.fullName));
+
+    return filtered;
   }, [searchOptions, activeFeatures, families]);
+
+  useEffect(() => {
+    setDisplayedFonts(filteredFamilies.map(family => family[1]).flat().map(font => font.fullName));
+  }, [filteredFamilies]);
+
   return (
     <ul>
       {filteredFamilies.map(family => {
@@ -106,7 +111,13 @@ function Subfamilies(props: { fonts: Font[] }) {
 
 function Sample(props: { fullName: string }) {
   const sampleText = useContext(FontBrowserContexts.SampleTextContext);
+  const loadedFonts = useContext(FontBrowserContexts.LoadedFontsContext);
   const [activeFeatures] = useContext(FontBrowserContexts.ActiveFeaturesContext);
+
+  if (!loadedFonts.includes(props.fullName)) {
+    return <FadeLoader cssOverride={{ display: 'inline' }} />;
+  }
+
   return (
     <div>
       <div className='text-lg' style={{

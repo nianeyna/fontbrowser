@@ -47,15 +47,18 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.7.13",
+    "@types/fontfaceobserver": "^2.1.0",
     "electron-context-menu": "^3.6.1",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.1.0",
+    "fontfaceobserver": "^2.3.0",
     "fontkit": "^2.0.2",
     "glob": "^9.2.1",
     "lorem-ipsum": "^2.0.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.9.0",
+    "react-spinners": "^0.13.8",
     "slugify": "^1.6.5"
   }
 }

@@ -11,4 +11,5 @@ export namespace FontBrowserContexts {
   export const ActiveFeaturesContext: Context<[string[], React.Dispatch<React.SetStateAction<string[]>>]> = createContext(null);
   export const SettingsContext: Context<[Settings, React.Dispatch<React.SetStateAction<Settings>>]> = createContext(null);
   export const FeatureSpecificationContext: Context<Map<string, Feature>> = createContext(null);
+  export const LoadedFontsContext: Context<string[]> = createContext([]);
 }
