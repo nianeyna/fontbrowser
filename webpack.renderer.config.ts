@@ -19,5 +19,5 @@ export const rendererConfig: Configuration = {
       "fs": false
     }
   },
-  devtool: false
+  devtool: 'source-map'
 };
