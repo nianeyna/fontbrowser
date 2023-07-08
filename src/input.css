@@ -21,3 +21,7 @@ textarea {
 button,[type=button],[type=submit] {
   @apply rounded m-1 px-1 border dark:border-none dark:bg-nia-primary
 }
+
+.toggle-box:has(input:checked) {
+  @apply outline outline-1 outline-nia-body dark:outline-none dark:shadow-inner dark:shadow-nia-text
+}

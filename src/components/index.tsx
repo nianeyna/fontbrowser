@@ -27,7 +27,7 @@ export default function Index(props: { linkedFonts: string[] }) {
   const [sampleOptions, setSampleOptions] = useState(new FontBrowser.SampleTextOptions(FontBrowser.SampleType.Pangram));
   const [searchOptions, setSearchOptions] = useState<SearchAndFilterOptions>(null);
   const [displayedFonts, setDisplayedFonts] = useState([]);
-  const [activeFeatures, setActiveFeatures] = useState([]);
+  const [activeFeatures, setActiveFeatures] = useState(new Map());
   const sampleText: string = useMemo(() => getSampleText(sampleOptions), [sampleOptions]);
   const features: Map<string, Feature> = useMemo(() => new Map(Object.entries(featureSpecification)), []);
   useEffect(() => {

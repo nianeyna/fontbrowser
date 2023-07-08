@@ -8,7 +8,7 @@ export namespace FontBrowserContexts {
   export const FontDetailsContext: Context<Map<string, FontDetails>> = createContext(null);
   export const FontFamiliesContext: Context<[string, Font[]][]> = createContext(null);
   export const DisplayedFontsContext: Context<[string[], React.Dispatch<React.SetStateAction<string[]>>]> = createContext(null);
-  export const ActiveFeaturesContext: Context<[string[], React.Dispatch<React.SetStateAction<string[]>>]> = createContext(null);
+  export const ActiveFeaturesContext: Context<[Map<string, boolean>, React.Dispatch<React.SetStateAction<Map<string, boolean>>>]> = createContext(null);
   export const SettingsContext: Context<[Settings, React.Dispatch<React.SetStateAction<Settings>>]> = createContext(null);
   export const FeatureSpecificationContext: Context<Map<string, Feature>> = createContext(null);
   export const LoadedFontsContext: Context<string[]> = createContext([]);

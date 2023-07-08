@@ -23,9 +23,9 @@ export default function Families() {
         .filter(subfamily => searchTerm
           ? subfamily.fullName.toLowerCase().includes(searchTerm)
           : true) // don't filter if there is no search term
-        .filter(subfamily => searchOptions?.selectedFeaturesOnly == true && activeFeatures.length > 0
+        .filter(subfamily => searchOptions?.selectedFeaturesOnly == true && activeFeatures.size > 0
           ? (fontDetails.get(subfamily.fullName)?.features ?? [])
-            .some(feature => activeFeatures.includes(feature))
+            .some(feature => activeFeatures.has(feature))
           : true)
         .filter(subfamily => searchOptions?.characters
           ? getCodePointsFromString(searchOptions.characters)
@@ -123,7 +123,7 @@ function Sample(props: { fullName: string }) {
       <div className='text-lg' style={{
         fontFamily: `"${props.fullName}"`,
         whiteSpace: 'pre-wrap',
-        fontFeatureSettings: activeFeatures.map(x => `"${x}"`).join(', ')
+        fontFeatureSettings: Array.from(activeFeatures.entries()).map(x => `"${x[0]}" ${x[1] ? 'on' : 'off'}`).join(', ')
       }}>
         {sampleText}
       </div>
@@ -156,7 +156,7 @@ function CodePoints(props: { fullName: string }): JSX.Element {
             leaveTo="transform scale-95 opacity-0">
             <Disclosure.Panel className='text-lg' style={{
               fontFamily: `"${props.fullName}"`,
-              fontFeatureSettings: activeFeatures.map(x => `"${x}"`).join(', ')
+              fontFeatureSettings: Array.from(activeFeatures.entries()).map(x => `"${x[0]}" ${x[1] ? 'on' : 'off'}`).join(', ')
             }}>
               {characterString}
             </Disclosure.Panel>

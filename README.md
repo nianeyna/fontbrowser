@@ -1,6 +1,6 @@
 # fontbrowser
 
-View and organize fonts on your desktop. Windows, Mac, and Linux. Open source and free forever, no restrictions. Finds all installed system fonts automatically, with the option to add your own font folders. View all glyphs for any font on demand. Option to view fonts with ANY OpenType features implemented by any font you have installed toggled on. Will that do anything? That's for you to find out! Tags and tag search are now implemented; please use them responsibly.
+View and organize fonts on your desktop. Windows, Mac, and Linux. Open source and free forever, no restrictions. Finds all installed system fonts automatically, with the option to add your own font folders. View all glyphs for any font on demand. Option to view fonts with ANY OpenType features implemented by any font you have installed toggled on or off. Will that do anything? That's for you to find out! Tags and tag search are now implemented; please use them responsibly.
 
 # disclaimer
 
@@ -25,4 +25,4 @@ Click on the latest release in the right-hand sidebar and download the correct f
 - Linux (Debian-based distros): the one that ends with .deb
 - Linux (Redhat-based distros): the one that ends with .rpm
 
-From there you should be able to run the program by double-clicking on the downloaded file. You'll probably have to jump through some hoops to convince your OS that yes you really want to run it yes you know it's an unknown publisher GOD MOM I KNOW WHAT I'M DOING OKAY! (If you don't see the right file, you probably got here while a release is mid-build so try checking back in a few minutes.)
+From there you should be able to run the program by double-clicking on the downloaded file. You'll probably have to jump through some hoops to convince your OS that yes you really want to run it yes you know it's an unknown publisher GOD MOM I KNOW WHAT I'M DOING OKAY!

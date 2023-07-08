@@ -14,8 +14,8 @@ export default function SearchOptions() {
     setSearchOptions({ ...searchOptions, secretOpenTypeFeatures: e.target.checked });
   const handleSetDefault = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
-    setSettings({ ...settings, searchOptions: {...searchOptions} })
-  }
+    setSettings({ ...settings, searchOptions: { ...searchOptions } });
+  };
   return (
     <form className='border-b'>
       <div>
@@ -54,11 +54,11 @@ function IncludedTags() {
   const [searchOptions, setSearchOptions] = useContext(FontBrowserContexts.SearchTermContext);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTagName(e.target.value);
-  }
+  };
   const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, tagName: string) => {
     e.preventDefault();
     setSearchOptions({ ...searchOptions, includedTags: searchOptions.includedTags.filter(x => x != tagName) });
-  }
+  };
   const handleAdd = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
     if (tagName) {
@@ -70,12 +70,16 @@ function IncludedTags() {
       else {
         setSearchOptions({ ...searchOptions, includedTags: [tagName] });
       }
-      setTagName('');      
+      setTagName('');
     }
-  }
+  };
   return (
     <div>
-      <h3>Included Tags</h3>
+      <label>
+        <h3>Included Tags</h3>
+        <input onChange={handleChange} type={'text'} value={tagName} />
+      </label>
+      <button onClick={handleAdd}>Add</button>
       <ul>
         {searchOptions?.includedTags?.map(tag => {
           return (
@@ -83,13 +87,11 @@ function IncludedTags() {
               “{tag}”
               <button onClick={(e) => handleClick(e, tag)}>x</button>
             </li>
-          )
+          );
         })}
       </ul>
-      <input onChange={handleChange} type={'text'} value={tagName} />
-      <button onClick={handleAdd}>Add</button>
     </div>
-  )
+  );
 }
 
 function ExcludedTags() {
@@ -97,11 +99,11 @@ function ExcludedTags() {
   const [searchOptions, setSearchOptions] = useContext(FontBrowserContexts.SearchTermContext);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTagName(e.target.value);
-  }
+  };
   const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, tagName: string) => {
     e.preventDefault();
     setSearchOptions({ ...searchOptions, excludedTags: searchOptions.excludedTags.filter(x => x != tagName) });
-  }
+  };
   const handleAdd = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
     if (tagName) {
@@ -113,12 +115,16 @@ function ExcludedTags() {
       else {
         setSearchOptions({ ...searchOptions, excludedTags: [tagName] });
       }
-      setTagName('');      
+      setTagName('');
     }
-  }
+  };
   return (
     <div>
-      <h3>Excluded Tags</h3>
+      <label>
+        <h3>Excluded Tags</h3>
+        <input onChange={handleChange} type={'text'} value={tagName} />
+      </label>
+      <button onClick={handleAdd}>Add</button>
       <ul>
         {searchOptions?.excludedTags?.map(tag => {
           return (
@@ -126,11 +132,9 @@ function ExcludedTags() {
               “{tag}”
               <button onClick={(e) => handleClick(e, tag)}>x</button>
             </li>
-          )
+          );
         })}
       </ul>
-      <input onChange={handleChange} type={'text'} value={tagName} />
-      <button onClick={handleAdd}>Add</button>
     </div>
-  )
+  );
 }

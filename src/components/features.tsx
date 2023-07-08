@@ -9,7 +9,7 @@ export function AllFeatures(): JSX.Element {
     return [...new Set([...fontDetails]
       .filter(x => displayedFonts.includes(x[0]))
       .map(x => x[1].features).flat())]
-      .sort((a, b) => a?.toString()?.localeCompare(b?.toString()))
+      .sort((a, b) => a?.toString()?.localeCompare(b?.toString()));
   }, [displayedFonts, fontDetails]);
   return (
     <table width={'100%'}>
@@ -33,7 +33,7 @@ export function AllFeatures(): JSX.Element {
                 leaveTo="transform scale-95 opacity-0">
                 <Disclosure.Panel as='tbody'>
                   {(featureList?.length ?? 0) > 0 && featureList?.map(x =>
-                    <FeatureCheckbox key={x} feature={x} />) ||
+                    <FeatureCheckbox key={x} feature={x} context='fontbrowser-all-features' />) ||
                     <tr><td>No features available</td></tr>}
                 </Disclosure.Panel>
               </Transition>
@@ -45,9 +45,9 @@ export function AllFeatures(): JSX.Element {
   );
 }
 
-export function FontFeatures(props: { fullName: string }): JSX.Element {
+export function FontFeatures(props: { fullName: string; }): JSX.Element {
   const fontDetails = useContext(FontBrowserContexts.FontDetailsContext);
-  const featureList = fontDetails.get(props.fullName)?.features
+  const featureList = fontDetails.get(props.fullName)?.features;
   return (
     <Disclosure>
       <tr>
@@ -68,7 +68,7 @@ export function FontFeatures(props: { fullName: string }): JSX.Element {
             leaveTo="transform scale-95 opacity-0">
             <Disclosure.Panel as='tbody'>
               {(featureList?.length ?? 0) > 0 && featureList?.map(x =>
-                <FeatureCheckbox key={x} feature={x} />) ||
+                <FeatureCheckbox key={x} feature={x} context={props.fullName} />) ||
                 <tr><td>No features available</td></tr>}
             </Disclosure.Panel>
           </Transition>
@@ -78,23 +78,32 @@ export function FontFeatures(props: { fullName: string }): JSX.Element {
   );
 }
 
-function FeatureCheckbox(props: { feature: string }): JSX.Element {
+function FeatureCheckbox(props: { feature: string, context: string; }): JSX.Element {
   const featureSpecification = useContext(FontBrowserContexts.FeatureSpecificationContext);
   const [activeFeatures, setActiveFeatures] = useContext(FontBrowserContexts.ActiveFeaturesContext);
   const [searchOptions] = useContext(FontBrowserContexts.SearchTermContext);
   const featureInfo = getFeatureInfo(props.feature, featureSpecification);
-  const handleChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked && !activeFeatures.includes(props.feature)) {
-      activeFeatures.push(props.feature);
+  const checked = useMemo(() => {
+    const entry = activeFeatures.get(props.feature);
+    if (entry == undefined) {
+      return 'default';
     }
-    else if (!e.target.checked) {
-      const index = activeFeatures.indexOf(props.feature);
-      if (index >= 0) {
-        activeFeatures.splice(index);
+    return entry ? 'on' : 'off';
+  }, [activeFeatures]);
+  const handleChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      if (e.target.value == 'off') {
+        setActiveFeatures(new Map(activeFeatures.set(props.feature, false)));
+      }
+      else if (e.target.value == 'on') {
+        setActiveFeatures(new Map(activeFeatures.set(props.feature, true)));
+      }
+      else {
+        activeFeatures.delete(props.feature);
+        setActiveFeatures(new Map(activeFeatures));
       }
     }
-    setActiveFeatures([...activeFeatures]);
-  }
+  };
   if (
     searchOptions?.secretOpenTypeFeatures == true ||
     !featureSpecification.get(props.feature)?.suggestion
@@ -103,13 +112,28 @@ function FeatureCheckbox(props: { feature: string }): JSX.Element {
       <Disclosure>
         <tr>
           <td className='align-top'>
-            <label>
-              <input onChange={handleChanged} type={'checkbox'} checked={activeFeatures.includes(props.feature)} />
-              <span>{featureInfo.friendlyName}</span>
-            </label>
-            <Disclosure.Button className='float-right'>
-              info
-            </Disclosure.Button>
+            <div className='flex flex-row justify-between'>
+              <label>
+                <div className='inline rounded m-1 border dark:border-none dark:bg-nia-primary'>
+                  <label className='toggle-box rounded px-1'>
+                    <input className='hidden' type='radio' name={`feature-${props.feature}-${props.context}`} onChange={handleChanged} value='off' checked={checked == 'off'} />
+                    <span aria-label='off'>✗</span>
+                  </label>
+                  <label className='toggle-box rounded px-1'>
+                    <input className='hidden' type='radio' name={`feature-${props.feature}-${props.context}`} onChange={handleChanged} value='default' checked={checked == 'default'} />
+                    <span aria-label='default'>○</span>
+                  </label>
+                  <label className='toggle-box rounded px-1'>
+                    <input className='hidden' type='radio' name={`feature-${props.feature}-${props.context}`} onChange={handleChanged} value='on' checked={checked == 'on'} />
+                    <span aria-label='on'>✓</span>
+                  </label>
+                </div>
+                <span className='pl-1'>{featureInfo.friendlyName}</span>
+              </label>
+              <Disclosure.Button>
+                info
+              </Disclosure.Button>
+            </div>
           </td>
           <td width={'60%'}>
             <Transition
@@ -136,15 +160,15 @@ function getFeatureInfo(feature: string, context: Map<string, Feature>): Feature
   if (feature?.startsWith('cv')) {
     const featureInfo = context.get('cvXX');
     const friendlyName = featureInfo.friendlyName.replace('%NUMBER%', feature.slice(2));
-    return { ...featureInfo, friendlyName: friendlyName }
+    return { ...featureInfo, friendlyName: friendlyName };
   }
   if (feature?.startsWith('ss')) {
     const featureInfo = context.get('ssXX');
     const friendlyName = featureInfo.friendlyName.replace('%NUMBER%', feature.slice(2));
-    return { ...featureInfo, friendlyName: friendlyName }
+    return { ...featureInfo, friendlyName: friendlyName };
   }
   // handle feature codes that aren't in the spec
   const featureInfo = context.get(feature);
-  if (!featureInfo) return { friendlyName: feature }
+  if (!featureInfo) return { friendlyName: feature };
   return featureInfo;
 }

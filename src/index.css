@@ -513,8 +513,8 @@ video {
   --tw-backdrop-sepia:  ;
 }
 
-.float-right {
-  float: right;
+.m-1 {
+  margin: 0.25rem;
 }
 
 .m-3 {
@@ -542,8 +542,16 @@ video {
   display: inline;
 }
 
+.flex {
+  display: flex;
+}
+
 .table {
   display: table;
+}
+
+.hidden {
+  display: none;
 }
 
 .scale-100 {
@@ -560,6 +568,14 @@ video {
 
 .transform {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.justify-between {
+  justify-content: space-between;
 }
 
 .rounded {
@@ -589,6 +605,15 @@ video {
 
 .p-2 {
   padding: 0.5rem;
+}
+
+.px-1 {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+.pl-1 {
+  padding-left: 0.25rem;
 }
 
 .align-top {
@@ -715,10 +740,37 @@ button,[type=button],[type=submit] {
     --tw-bg-opacity: 1;
     background-color: rgb(16 55 64 / var(--tw-bg-opacity));
   }
+}
+
+.toggle-box:has(input:checked) {
+  outline-style: solid;
+  outline-width: 1px;
+  outline-color: #13424D;
+}
+
+@media (prefers-color-scheme: dark) {
+  .toggle-box:has(input:checked) {
+    --tw-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+    --tw-shadow-colored: inset 0 2px 4px 0 var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+    --tw-shadow-color: #FFFFFF;
+    --tw-shadow: var(--tw-shadow-colored);
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+
+  .dark\:border-none {
+    border-style: none;
+  }
 
   .dark\:bg-nia-body {
     --tw-bg-opacity: 1;
     background-color: rgb(19 66 77 / var(--tw-bg-opacity));
+  }
+
+  .dark\:bg-nia-primary {
+    --tw-bg-opacity: 1;
+    background-color: rgb(16 55 64 / var(--tw-bg-opacity));
   }
 
   .dark\:text-nia-text {
