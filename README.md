@@ -26,3 +26,19 @@ Click on the latest release in the right-hand sidebar and download the correct f
 - Linux (Redhat-based distros): the one that ends with .rpm
 
 From there you should be able to run the program by double-clicking on the downloaded file. You'll probably have to jump through some hoops to convince your OS that yes you really want to run it yes you know it's an unknown publisher GOD MOM I KNOW WHAT I'M DOING OKAY!
+
+# ok that's great but what does it look like
+
+By popular demand (one person) here are some screenshots.
+
+You can search by both font name and included characters (plus your own custom tags)
+
+![search with emoji](/screenshots/emoji.png)
+
+You can add font folders and switch between light and dark mode
+
+![lightmode settings](/screenshots/settings.png)
+
+You can toggle OpenType features of fonts on or off (feature states beyond on and off not yet supported)
+
+![features](/screenshots/features.png)
