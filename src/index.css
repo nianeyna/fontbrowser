@@ -513,6 +513,10 @@ video {
   --tw-backdrop-sepia:  ;
 }
 
+.static {
+  position: static;
+}
+
 .m-1 {
   margin: 0.25rem;
 }
@@ -554,6 +558,19 @@ video {
   display: none;
 }
 
+.max-h-40 {
+  max-height: 10rem;
+}
+
+.w-0 {
+  width: 0px;
+}
+
+.w-max {
+  width: -moz-max-content;
+  width: max-content;
+}
+
 .scale-100 {
   --tw-scale-x: 1;
   --tw-scale-y: 1;
@@ -576,6 +593,14 @@ video {
 
 .justify-between {
   justify-content: space-between;
+}
+
+.self-start {
+  align-self: flex-start;
+}
+
+.overflow-auto {
+  overflow: auto;
 }
 
 .rounded {

@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import { FontBrowserContexts } from "./contexts";
+import TagSelect from "./tagselect";
 
 export default function SearchOptions() {
   const [settings, setSettings] = useContext(FontBrowserContexts.SettingsContext);
@@ -77,9 +78,8 @@ function IncludedTags() {
     <div>
       <label>
         <h3>Included Tags</h3>
-        <input onChange={handleChange} type={'text'} value={tagName} />
+        <TagSelect tagName={tagName} setTagName={setTagName} handleClick={handleAdd} />
       </label>
-      <button onClick={handleAdd}>Add</button>
       <ul>
         {searchOptions?.includedTags?.map(tag => {
           return (
@@ -97,9 +97,6 @@ function IncludedTags() {
 function ExcludedTags() {
   const [tagName, setTagName] = useState('');
   const [searchOptions, setSearchOptions] = useContext(FontBrowserContexts.SearchTermContext);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTagName(e.target.value);
-  };
   const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, tagName: string) => {
     e.preventDefault();
     setSearchOptions({ ...searchOptions, excludedTags: searchOptions.excludedTags.filter(x => x != tagName) });
@@ -122,9 +119,8 @@ function ExcludedTags() {
     <div>
       <label>
         <h3>Excluded Tags</h3>
-        <input onChange={handleChange} type={'text'} value={tagName} />
+        <TagSelect tagName={tagName} setTagName={setTagName} handleClick={handleAdd} />
       </label>
-      <button onClick={handleAdd}>Add</button>
       <ul>
         {searchOptions?.excludedTags?.map(tag => {
           return (

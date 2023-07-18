@@ -1,13 +1,11 @@
 import { Disclosure, Transition } from "@headlessui/react";
 import { useContext, useState } from "react";
 import { FontBrowserContexts } from "./contexts";
+import TagSelect from "./tagselect";
 
-export default function TagAdd(props: { fullName: string }) {
+export default function TagAdd(props: { fullName: string; }) {
   const [settings, setSettings] = useContext(FontBrowserContexts.SettingsContext);
   const [tagName, setTagName] = useState('');
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTagName(e.target.value);
-  }
   const handleAdd = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
     if (!tagName) return;
@@ -32,7 +30,7 @@ export default function TagAdd(props: { fullName: string }) {
     }
     setSettings({ ...settings, tags: [...allTags] });
     setTagName('');
-  }
+  };
   return (
     <tr>
       <Disclosure>
@@ -50,8 +48,7 @@ export default function TagAdd(props: { fullName: string }) {
             leaveFrom="transform scale-100 opacity-100"
             leaveTo="transform scale-95 opacity-0">
             <Disclosure.Panel>
-              <input onChange={handleChange} type={'text'} value={tagName} />
-              <button onClick={handleAdd}>Add</button>
+              <TagSelect tagName={tagName} setTagName={setTagName} handleClick={handleAdd} />
             </Disclosure.Panel>
           </Transition>
         </td>
