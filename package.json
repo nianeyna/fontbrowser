@@ -11,7 +11,7 @@
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
     "debug": "electron-forge start --vscode",
-    "tailwind": "npx tailwindcss -i ./src/input.css -o ./src/index.css --watch"
+    "tailwind": "npx tailwindcss -i ./src/styles/input.css -o ./src/styles/index.css --watch"
   },
   "keywords": [
     "fonts"

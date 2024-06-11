@@ -1,5 +1,5 @@
-import { useContext, useState } from "react";
-import { FontBrowserContexts } from "./contexts";
+import { useContext, useState } from 'react';
+import { FontBrowserContexts } from './contexts';
 
 export default function Settings() {
   const [settings, setSettings] = useContext(FontBrowserContexts.SettingsContext);

@@ -1,9 +1,20 @@
 import { createRoot } from 'react-dom/client';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
-import Index from './components';
-import ErrorPage from './components/error';
-import Home from './components/home';
-import Settings from './components/settings';
+import Index from '.';
+import ErrorPage from './error';
+import Home from './home';
+import Settings from './settings';
+
+declare global {
+  interface Window {
+    'api': {
+      families: () => Promise<[string, Font[]][]>,
+      details: (fileName: string) => Promise<FontDetails>,
+      getSettings: () => Promise<Settings>,
+      setSettings: (settings: Settings) => Promise<void>
+    }
+  }
+}
 
 const router = createHashRouter([
   {

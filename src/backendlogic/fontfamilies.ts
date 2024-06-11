@@ -1,6 +1,6 @@
-import fontkit from 'fontkit';
 import { app } from 'electron';
-import { glob } from "glob";
+import fontkit from 'fontkit';
+import { glob } from 'glob';
 
 export async function getFontFamilies(fontFolders: FontFolder[]): Promise<[string, Font[]][]> {
   addSystemFontFolders(fontFolders);

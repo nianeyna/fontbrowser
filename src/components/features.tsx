@@ -1,6 +1,7 @@
-import { Disclosure, Transition } from "@headlessui/react";
-import { useContext, useMemo } from "react";
-import { FontBrowserContexts } from "./contexts";
+import { Disclosure } from '@headlessui/react';
+import { useContext, useMemo } from 'react';
+import { FontBrowserContexts } from './contexts';
+import FontBrowserTransition from './transition';
 
 export function AllFeatures(): JSX.Element {
   const [displayedFonts] = useContext(FontBrowserContexts.DisplayedFontsContext);
@@ -24,19 +25,13 @@ export function AllFeatures(): JSX.Element {
           </tr>
           <tr>
             <td colSpan={2}>
-              <Transition as='table' width={'100%'}
-                enter="transition duration-500 ease-out"
-                enterFrom="transform scale-95 opacity-0"
-                enterTo="transform scale-100 opacity-100"
-                leave="transition duration-400 ease-out"
-                leaveFrom="transform scale-100 opacity-100"
-                leaveTo="transform scale-95 opacity-0">
+              <FontBrowserTransition additionalProps={{as: 'table', width: '100%'}} children={
                 <Disclosure.Panel as='tbody'>
                   {(featureList?.length ?? 0) > 0 && featureList?.map(x =>
                     <FeatureCheckbox key={x} feature={x} context='fontbrowser-all-features' />) ||
                     <tr><td>No features available</td></tr>}
                 </Disclosure.Panel>
-              </Transition>
+              } />
             </td>
           </tr>
         </Disclosure>
@@ -59,19 +54,13 @@ export function FontFeatures(props: { fullName: string; }): JSX.Element {
       </tr>
       <tr>
         <td colSpan={2}>
-          <Transition as='table' width={'100%'}
-            enter="transition duration-500 ease-out"
-            enterFrom="transform scale-95 opacity-0"
-            enterTo="transform scale-100 opacity-100"
-            leave="transition duration-400 ease-out"
-            leaveFrom="transform scale-100 opacity-100"
-            leaveTo="transform scale-95 opacity-0">
+          <FontBrowserTransition additionalProps={{as: 'table', width: '100%'}} children={
             <Disclosure.Panel as='tbody'>
               {(featureList?.length ?? 0) > 0 && featureList?.map(x =>
                 <FeatureCheckbox key={x} feature={x} context={props.fullName} />) ||
                 <tr><td>No features available</td></tr>}
             </Disclosure.Panel>
-          </Transition>
+          } />
         </td>
       </tr>
     </Disclosure>
@@ -136,17 +125,11 @@ function FeatureCheckbox(props: { feature: string, context: string; }): JSX.Elem
             </div>
           </td>
           <td width={'60%'}>
-            <Transition
-              enter="transition duration-500 ease-out"
-              enterFrom="transform scale-95 opacity-0"
-              enterTo="transform scale-100 opacity-100"
-              leave="transition duration-400 ease-out"
-              leaveFrom="transform scale-100 opacity-100"
-              leaveTo="transform scale-95 opacity-0">
+            <FontBrowserTransition children={
               <Disclosure.Panel
                 dangerouslySetInnerHTML={{ __html: featureInfo.function ?? 'No available information' }}>
               </Disclosure.Panel>
-            </Transition>
+            } />
           </td>
         </tr>
       </Disclosure>

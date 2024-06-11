@@ -1,10 +1,12 @@
 export namespace FontBrowser {
+
   export class FontBrowserError extends Error {
     constructor(message: string) {
       super(message);
       this.name = this.constructor.name;
     }
   }
+  
   export class FontFamiliesAccessError extends FontBrowserError { }
   export class ReactRelatedError extends FontBrowserError { }
   export class ReactRenderingError extends ReactRelatedError { }

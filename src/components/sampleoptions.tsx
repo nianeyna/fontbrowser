@@ -1,6 +1,6 @@
-import { useContext } from "react";
-import { FontBrowser } from "../types/defs";
-import { FontBrowserContexts } from "./contexts";
+import { useContext } from 'react';
+import { FontBrowser } from '../types/defs';
+import { FontBrowserContexts } from './contexts';
 
 export default function SampleOptions() {
   const [sampleOptions, setSampleOptions] = useContext(FontBrowserContexts.SampleTypeContext);

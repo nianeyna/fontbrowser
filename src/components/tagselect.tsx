@@ -1,6 +1,7 @@
-import { Combobox, Transition } from "@headlessui/react";
-import { useContext, useMemo } from "react";
-import { FontBrowserContexts } from "./contexts";
+import { Combobox } from '@headlessui/react';
+import { useContext, useMemo } from 'react';
+import { FontBrowserContexts } from './contexts';
+import FontBrowserTransition from './transition';
 
 export default function TagSelect(props: {
   tagName: string,
@@ -23,21 +24,14 @@ export default function TagSelect(props: {
           <Combobox.Button as='div'>
             <Combobox.Input onChange={(e) => props.setTagName(e.target.value)} />
           </Combobox.Button>
-          <Transition
-            enter="transition duration-500 ease-out"
-            enterFrom="transform scale-95 opacity-0"
-            enterTo="transform scale-100 opacity-100"
-            leave="transition duration-400 ease-out"
-            leaveFrom="transform scale-100 opacity-100"
-            leaveTo="transform scale-95 opacity-0">
+          <FontBrowserTransition children={
             <Combobox.Options static style={{ minWidth: 'calc(100% - .5rem)' }} className='w-0 max-h-40 m-1 px-1 overflow-auto rounded border dark:border-none dark:bg-nia-primary'>
               {filteredTagList.map(tag => (
                 <Combobox.Option key={tag} value={tag}>
                   {tag}
                 </Combobox.Option>
               ))}
-            </Combobox.Options>
-          </Transition>
+            </Combobox.Options>} />
         </div>
         <button className='self-start' onClick={props.handleClick}>Add</button>
       </div>

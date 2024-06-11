@@ -1,6 +1,6 @@
-import { useContext, useState } from "react";
-import { FontBrowserContexts } from "./contexts";
-import TagSelect from "./tagselect";
+import { useContext, useState } from 'react';
+import { FontBrowserContexts } from './contexts';
+import TagSelect from './tagselect';
 
 export default function SearchOptions() {
   const [settings, setSettings] = useContext(FontBrowserContexts.SettingsContext);

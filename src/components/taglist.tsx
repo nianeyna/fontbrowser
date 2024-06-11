@@ -1,8 +1,9 @@
-import { Disclosure, Transition } from "@headlessui/react";
-import { useContext } from "react";
-import { FontBrowserContexts } from "./contexts";
+import { Disclosure } from '@headlessui/react';
+import { useContext } from 'react';
+import { FontBrowserContexts } from './contexts';
+import FontBrowserTransition from './transition';
 
-export default function TagList(props: { fullName: string }) {
+export default function TagList(props: { fullName: string; }) {
   const [settings, setSettings] = useContext(FontBrowserContexts.SettingsContext);
   const fontIndex = settings?.tags?.findIndex(x => x[0] == props.fullName);
   const existingTags = fontIndex >= 0 ? settings.tags[fontIndex][1] : [];
@@ -12,7 +13,7 @@ export default function TagList(props: { fullName: string }) {
       settings.tags[fontIndex][1] = existingTags.filter(x => x != tagName);
       setSettings({ ...settings, tags: [...settings.tags] });
     }
-  }
+  };
   if (existingTags.length > 0) {
     return (
       <tr>
@@ -23,13 +24,7 @@ export default function TagList(props: { fullName: string }) {
             </Disclosure.Button>
           </td>
           <td width={'60%'}>
-            <Transition
-              enter="transition duration-500 ease-out"
-              enterFrom="transform scale-95 opacity-0"
-              enterTo="transform scale-100 opacity-100"
-              leave="transition duration-400 ease-out"
-              leaveFrom="transform scale-100 opacity-100"
-              leaveTo="transform scale-95 opacity-0">
+            <FontBrowserTransition children={
               <Disclosure.Panel>
                 {existingTags.map(tag =>
                   <span key={tag}>
@@ -38,7 +33,7 @@ export default function TagList(props: { fullName: string }) {
                   </span>
                 )}
               </Disclosure.Panel>
-            </Transition>
+            } />
           </td>
         </Disclosure>
       </tr>

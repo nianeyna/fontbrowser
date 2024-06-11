@@ -1,16 +1,16 @@
-interface Font {
+type Font = {
     file: string,
     fullName: string,
     subfamilyName: string
 }
 
-interface FontDetails {
+type FontDetails = {
     features: string[],
     characters: number[],
     characterString: string
 }
 
-interface Feature {
+type Feature = {
     friendlyName?: string,
     registeredBy?: string,
     function?: string,
@@ -22,7 +22,7 @@ interface Feature {
     interaction?: string
 }
 
-interface SearchAndFilterOptions {
+type SearchAndFilterOptions = {
     searchTerm?: string,
     characters?: string,
     includedTags: string[],
@@ -31,14 +31,14 @@ interface SearchAndFilterOptions {
     secretOpenTypeFeatures: boolean
 }
 
-interface Settings {
+type Settings = {
     searchOptions?: SearchAndFilterOptions,
     tags?: [string, string[]][],
     fontFolders?: FontFolder[],
     darkMode?: boolean
 }
 
-interface FontFolder {
+type FontFolder = {
     folderPath: string,
     subfolders: boolean
 }

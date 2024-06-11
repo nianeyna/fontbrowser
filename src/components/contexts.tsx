@@ -1,5 +1,5 @@
-import { Context, createContext } from "react";
-import { FontBrowser } from "../types/defs";
+import { Context, createContext } from 'react';
+import { FontBrowser } from '../types/defs';
 
 export namespace FontBrowserContexts {
   export const SampleTextContext: Context<string> = createContext(null);
@@ -11,5 +11,5 @@ export namespace FontBrowserContexts {
   export const ActiveFeaturesContext: Context<[Map<string, boolean>, React.Dispatch<React.SetStateAction<Map<string, boolean>>>]> = createContext(null);
   export const SettingsContext: Context<[Settings, React.Dispatch<React.SetStateAction<Settings>>]> = createContext(null);
   export const FeatureSpecificationContext: Context<Map<string, Feature>> = createContext(null);
-  export const LoadedFontsContext: Context<string[]> = createContext([]);
+  export const LoadedFontsContext: Context<[string[], string[]]> = createContext([[], []]);
 }

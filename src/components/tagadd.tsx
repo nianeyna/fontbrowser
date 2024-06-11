@@ -1,7 +1,8 @@
-import { Disclosure, Transition } from "@headlessui/react";
-import { useContext, useState } from "react";
-import { FontBrowserContexts } from "./contexts";
-import TagSelect from "./tagselect";
+import { Disclosure } from '@headlessui/react';
+import { useContext, useState } from 'react';
+import { FontBrowserContexts } from './contexts';
+import TagSelect from './tagselect';
+import FontBrowserTransition from './transition';
 
 export default function TagAdd(props: { fullName: string; }) {
   const [settings, setSettings] = useContext(FontBrowserContexts.SettingsContext);
@@ -40,17 +41,11 @@ export default function TagAdd(props: { fullName: string; }) {
           </Disclosure.Button>
         </td>
         <td width={'60%'}>
-          <Transition
-            enter="transition duration-500 ease-out"
-            enterFrom="transform scale-95 opacity-0"
-            enterTo="transform scale-100 opacity-100"
-            leave="transition duration-400 ease-out"
-            leaveFrom="transform scale-100 opacity-100"
-            leaveTo="transform scale-95 opacity-0">
+          <FontBrowserTransition children={
             <Disclosure.Panel>
               <TagSelect tagName={tagName} setTagName={setTagName} handleClick={handleAdd} />
             </Disclosure.Panel>
-          </Transition>
+          } />
         </td>
       </Disclosure>
     </tr>

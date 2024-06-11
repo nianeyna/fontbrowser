@@ -1,63 +1,19 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { Disclosure, Transition } from '@headlessui/react';
+import { Disclosure } from '@headlessui/react';
+import path from 'path';
+import { useContext, useState } from 'react';
+import { FadeLoader } from 'react-spinners';
+import { FontBrowser } from '../types/defs';
 import { FontBrowserContexts } from './contexts';
 import { FontFeatures } from './features';
-import { FontBrowser } from '../types/defs';
-import { FadeLoader } from 'react-spinners';
-import path from 'path';
-import TagList from './taglist';
 import TagAdd from './tagadd';
+import TagList from './taglist';
+import FontBrowserTransition from './transition';
 
 export default function Families() {
   const families = useContext(FontBrowserContexts.FontFamiliesContext);
-  const [settings] = useContext(FontBrowserContexts.SettingsContext);
-  const fontDetails = useContext(FontBrowserContexts.FontDetailsContext);
-  const [activeFeatures] = useContext(FontBrowserContexts.ActiveFeaturesContext);
-  const [searchOptions] = useContext(FontBrowserContexts.SearchTermContext);
-  const [_, setDisplayedFonts] = useContext(FontBrowserContexts.DisplayedFontsContext);
-  const searchTerm = searchOptions?.searchTerm?.toLowerCase();
-  const filteredFamilies = useMemo(() => {
-    const filtered: [string, Font[]][] = families.map(family => {
-      const familyName = family[0];
-      const filteredFonts = family[1]
-        .filter(subfamily => searchTerm
-          ? subfamily.fullName.toLowerCase().includes(searchTerm)
-          : true) // don't filter if there is no search term
-        .filter(subfamily => searchOptions?.selectedFeaturesOnly == true && activeFeatures.size > 0
-          ? (fontDetails.get(subfamily.fullName)?.features ?? [])
-            .some(feature => activeFeatures.has(feature))
-          : true)
-        .filter(subfamily => searchOptions?.characters
-          ? getCodePointsFromString(searchOptions.characters)
-            .every(point => fontDetails.get(subfamily.fullName).characters.includes(point))
-          : true)
-        .filter(subfamily => {
-          const fontEntry = settings?.tags?.find(x => x[0] == subfamily.fullName);
-          const includedTags = searchOptions?.includedTags;
-          const excludedTags = searchOptions?.excludedTags;
-          if (Array.isArray(fontEntry) && fontEntry[1].length > 0) { // font has any tags at all
-            const tags = fontEntry[1];
-            return (!includedTags || includedTags.length <= 0 || tags.some(tag => includedTags.includes(tag)))
-              && (!excludedTags || excludedTags.length <= 0 || tags.every(tag => !excludedTags.includes(tag)))
-          }
-          else if (includedTags && includedTags.length > 0) { // included tags specified
-            return false;
-          }
-          return true;
-        });
-      return [familyName, filteredFonts];
-    });
-
-    return filtered;
-  }, [searchOptions, activeFeatures, families]);
-
-  useEffect(() => {
-    setDisplayedFonts(filteredFamilies.map(family => family[1]).flat().map(font => font.fullName));
-  }, [filteredFamilies]);
-
   return (
     <ul>
-      {filteredFamilies.map(family => {
+      {families.map(family => {
         if (family[1].length > 0) {
           return <li key={family[0]}>
             <h3 className='text-lg font-bold'>{family[0]}</h3>
@@ -70,7 +26,7 @@ export default function Families() {
   );
 }
 
-function Subfamilies(props: { fonts: Font[] }) {
+function Subfamilies(props: { fonts: Font[]; }) {
   return (
     <ul className='ml-3'>{props.fonts.map(font => {
       const fontsWithSameName = props.fonts.filter(x => x.fullName == font.fullName);
@@ -81,8 +37,8 @@ function Subfamilies(props: { fonts: Font[] }) {
         <li key={font.fullName}>
           <style>
             {`@font-face {
-            font-family: "${font.fullName}";
-            src: url("font://${font.file}") format(${fontType});
+            font-family: '${font.fullName}';
+            src: url('font://${font.file}') format(${fontType});
           }`}
           </style>
           <div className='border rounded p-1 my-1'>
@@ -106,15 +62,19 @@ function Subfamilies(props: { fonts: Font[] }) {
         </li>
       );
     })}
-    </ul>)
+    </ul>);
 }
 
-function Sample(props: { fullName: string }) {
+function Sample(props: { fullName: string; }) {
   const sampleText = useContext(FontBrowserContexts.SampleTextContext);
   const loadedFonts = useContext(FontBrowserContexts.LoadedFontsContext);
   const [activeFeatures] = useContext(FontBrowserContexts.ActiveFeaturesContext);
 
-  if (!loadedFonts.includes(props.fullName)) {
+  if (loadedFonts[1].includes(props.fullName)) {
+    return <div className='text-lg font-bold text-red-700 dark:text-nia-accent'>Could not load font.</div>;
+  }
+
+  if (!loadedFonts[0].includes(props.fullName)) {
     return <FadeLoader cssOverride={{ display: 'inline' }} />;
   }
 
@@ -123,7 +83,7 @@ function Sample(props: { fullName: string }) {
       <div className='text-lg' style={{
         fontFamily: `"${props.fullName}"`,
         whiteSpace: 'pre-wrap',
-        fontFeatureSettings: Array.from(activeFeatures.entries()).map(x => `"${x[0]}" ${x[1] ? 'on' : 'off'}`).join(', ')
+        fontFeatureSettings: Array.from(activeFeatures.entries()).map(x => `'${x[0]}' ${x[1] ? 'on' : 'off'}`).join(', ')
       }}>
         {sampleText}
       </div>
@@ -131,7 +91,7 @@ function Sample(props: { fullName: string }) {
   );
 }
 
-function CodePoints(props: { fullName: string }): JSX.Element {
+function CodePoints(props: { fullName: string; }): JSX.Element {
   const [characterString, setCharacterString] = useState('');
   const fontDetails = useContext(FontBrowserContexts.FontDetailsContext);
   const [activeFeatures] = useContext(FontBrowserContexts.ActiveFeaturesContext);
@@ -147,32 +107,18 @@ function CodePoints(props: { fullName: string }): JSX.Element {
           </Disclosure.Button>
         </td>
         <td>
-          <Transition
-            enter="transition duration-500 ease-out"
-            enterFrom="transform scale-95 opacity-0"
-            enterTo="transform scale-100 opacity-100"
-            leave="transition duration-400 ease-out"
-            leaveFrom="transform scale-100 opacity-100"
-            leaveTo="transform scale-95 opacity-0">
+          <FontBrowserTransition children={
             <Disclosure.Panel className='text-lg' style={{
-              fontFamily: `"${props.fullName}"`,
-              fontFeatureSettings: Array.from(activeFeatures.entries()).map(x => `"${x[0]}" ${x[1] ? 'on' : 'off'}`).join(', ')
+              fontFamily: `'${props.fullName}'`,
+              fontFeatureSettings: Array.from(activeFeatures.entries()).map(x => `'${x[0]}' ${x[1] ? 'on' : 'off'}`).join(', ')
             }}>
               {characterString}
             </Disclosure.Panel>
-          </Transition>
+          } />
         </td>
       </Disclosure>
     </tr>
   );
-}
-
-function getCodePointsFromString(searchString: string): number[] {
-  const codePoints: number[] = []
-  for (const codePoint of searchString) {
-    codePoints.push(codePoint.codePointAt(0));
-  }
-  return codePoints;
 }
 
 function getFontDescriptorFromExtension(ext: string): string {
@@ -187,6 +133,6 @@ function getFontDescriptorFromExtension(ext: string): string {
       return 'woff2';
     default:
       console.log(ext);
-      throw new FontBrowser.FontBrowserError('Invalid font extension.')
+      throw new FontBrowser.FontBrowserError('Invalid font extension.');
   }
 }
