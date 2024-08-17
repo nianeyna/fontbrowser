@@ -49,7 +49,7 @@ export default function Index(props: { linkedFonts: string[]; }) {
     const newFontList: Family[] = families.map(family => {
       const filteredFonts = family.fonts
         .filter(subfamily => searchTerm
-          ? subfamily.fullName?.toLowerCase().includes(searchTerm)
+          ? subfamily.fullName.toString().toLowerCase().includes(searchTerm)
           : true) // don't filter if there is no search term
         .filter(subfamily => searchOptions?.selectedFeaturesOnly == true && activeFeatures.size > 0
           ? (fontDetails.get(subfamily.fullName)?.features ?? [])
