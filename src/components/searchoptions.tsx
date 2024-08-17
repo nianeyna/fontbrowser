@@ -3,7 +3,6 @@ import { FontBrowserContexts } from './contexts';
 import TagSelect from './tagselect';
 
 export default function SearchOptions() {
-  const [settings, setSettings] = useContext(FontBrowserContexts.SettingsContext);
   const [searchOptions, setSearchOptions] = useContext(FontBrowserContexts.SearchTermContext);
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) =>
     setSearchOptions({ ...searchOptions, searchTerm: e.target.value });
@@ -13,12 +12,8 @@ export default function SearchOptions() {
     setSearchOptions({ ...searchOptions, selectedFeaturesOnly: e.target.checked });
   const handleSecretTypeInput = (e: React.ChangeEvent<HTMLInputElement>) =>
     setSearchOptions({ ...searchOptions, secretOpenTypeFeatures: e.target.checked });
-  const handleSetDefault = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.preventDefault();
-    setSettings({ ...settings, searchOptions: { ...searchOptions } });
-  };
   return (
-    <form className='border-b'>
+    <form>
       <div>
         <label>
           <input onChange={handleSearchInput} type={'text'} value={searchOptions?.searchTerm ?? ''} />
@@ -45,7 +40,6 @@ export default function SearchOptions() {
           Reveal OpenType features that are not meant to be adjustable
         </label>
       </div>
-      <button onClick={handleSetDefault}>Set these options as default</button>
     </form>
   );
 }
@@ -53,9 +47,6 @@ export default function SearchOptions() {
 function IncludedTags() {
   const [tagName, setTagName] = useState('');
   const [searchOptions, setSearchOptions] = useContext(FontBrowserContexts.SearchTermContext);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTagName(e.target.value);
-  };
   const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, tagName: string) => {
     e.preventDefault();
     setSearchOptions({ ...searchOptions, includedTags: searchOptions.includedTags.filter(x => x != tagName) });

@@ -4,6 +4,11 @@ type Font = {
     subfamilyName: string
 }
 
+type Family = {
+    name: string,
+    fonts: Font[]
+}
+
 type FontDetails = {
     features: string[],
     characters: number[],
@@ -25,6 +30,7 @@ type Feature = {
 type SearchAndFilterOptions = {
     searchTerm?: string,
     characters?: string,
+    pinnedFonts?: Family[],
     includedTags: string[],
     excludedTags: string[],
     selectedFeaturesOnly: boolean,
@@ -33,8 +39,9 @@ type SearchAndFilterOptions = {
 
 type Settings = {
     searchOptions?: SearchAndFilterOptions,
-    tags?: [string, string[]][],
+    sampleOptions?: SampleTextOptions,
     fontFolders?: FontFolder[],
+    tags?: [string, string[]][],
     darkMode?: boolean
 }
 

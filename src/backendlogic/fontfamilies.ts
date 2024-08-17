@@ -2,7 +2,7 @@ import { app } from 'electron';
 import fontkit from 'fontkit';
 import { glob } from 'glob';
 
-export async function getFontFamilies(fontFolders: FontFolder[]): Promise<[string, Font[]][]> {
+export async function getFontFamilies(fontFolders: FontFolder[]): Promise<Family[]> {
   addSystemFontFolders(fontFolders);
   const fonts = await getFonts(fontFolders);
   return sortFonts(fonts);
@@ -54,14 +54,14 @@ async function getFonts(fontFolders: FontFolder[]): Promise<Map<string, fontkit.
   return fonts;
 }
 
-function sortFonts(fonts: Map<string, fontkit.Font>): [string, Font[]][] {
+function sortFonts(fonts: Map<string, fontkit.Font>): Family[] {
   const fontsList = Array.from(fonts.entries());
   const familiesMap: Map<string, Font[]> = new Map();
   fontsList.forEach(element => addFontToFamiliesMap(familiesMap, element));
   const families = Array.from(familiesMap.entries());
   families.sort((a, b) => a[0].toString().localeCompare(b[0].toString()));
   families.forEach(element => sortSubfamily(element));
-  return families;
+  return families.map(element => { return { name: element[0], fonts: element[1] } });
 }
 
 function addFontToFamiliesMap(familiesMap: Map<string, Font[]>, element: [string, fontkit.Font]): void {
@@ -69,7 +69,7 @@ function addFontToFamiliesMap(familiesMap: Map<string, Font[]>, element: [string
     const font = element[1];
     if (!font.familyName) return; // sorry, poorly-formed font files
     if (!familiesMap.has(font.familyName)) {
-      familiesMap.set(font.familyName, [])
+      familiesMap.set(font.familyName, []);
     }
     familiesMap.get(font.familyName)?.push({ file: element[0], fullName: font.fullName, subfamilyName: font.subfamilyName });
   }

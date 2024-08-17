@@ -17,7 +17,7 @@ const store = new ElectronStore<Settings>();
 Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
 
 if (store.store.darkMode == null) {
-  store.set('darkMode', nativeTheme.themeSource == 'dark')
+  store.set('darkMode', nativeTheme.themeSource == 'dark');
 }
 setDarkMode();
 
@@ -60,7 +60,7 @@ app.whenReady().then(() => {
   });
 });
 
-ipcMain.handle('font-families', async (): Promise<[string, Font[]][]> => await getFontFamilies(store.store.fontFolders || []));
+ipcMain.handle('font-families', async (): Promise<Family[]> => await getFontFamilies(store.store.fontFolders || []));
 ipcMain.handle('font-features', async (_event, filePath: string): Promise<FontDetails> => await loadFontFeatures(filePath));
 ipcMain.handle('get-store-value', async () => store.store);
 ipcMain.handle('set-store-value', async (_event, settings: Settings) => {

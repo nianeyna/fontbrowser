@@ -2,9 +2,11 @@
 
 View and organize fonts on your desktop. Windows, Mac, and Linux. Open source and free forever, no restrictions. Finds all installed system fonts automatically, with the option to add your own font folders. View all glyphs for any font on demand. Option to view fonts with ANY OpenType features implemented by any font you have installed toggled on or off. Will that do anything? That's for you to find out! Tags and tag search are now implemented; please use them responsibly.
 
+New feature: font pinning! Pin any number of individual fonts to the top of the font list. They'll remain there until you unpin them, even if you search for something else.
+
 # disclaimer
 
-Releases should all be runnable on all 3 platforms but I mostly have only been testing on Windows. You won't mess up your computer by running this thing, but it also might not work! (If it doesn't work, I'd appreciate it if you hop over to the Issues or Discussions tab on this project's github page, and describe for me what happened instead of it working.) Also, I have never used electron, react, or typescript (the main technologies this program relies on) before starting this project, so if you actually know what you're doing around those and you look at my code, have mercy on me.
+Releases should all be runnable on all 3 platforms but I mostly have only been testing on ~~Windows~~ Linux. You won't mess up your computer by running this thing, but it also might not work! (If it doesn't work, I'd appreciate it if you hop over to the Issues or Discussions tab on this project's github page, and describe for me what happened instead of it working.) Also, I have never used electron, react, or typescript (the main technologies this program relies on) before starting this project, so if you actually know what you're doing around those and you look at my code, have mercy on me.
 
 # note on origins
 

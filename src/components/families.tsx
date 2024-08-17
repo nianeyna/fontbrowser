@@ -1,35 +1,77 @@
 import { Disclosure } from '@headlessui/react';
 import path from 'path';
 import { useContext, useState } from 'react';
-import { FadeLoader } from 'react-spinners';
+import { Virtuoso } from 'react-virtuoso';
 import { FontBrowser } from '../types/defs';
 import { FontBrowserContexts } from './contexts';
 import { FontFeatures } from './features';
+import { Pin, Spinner, Unpin } from './svg';
 import TagAdd from './tagadd';
 import TagList from './taglist';
 import FontBrowserTransition from './transition';
 
 export default function Families() {
+  const [searchoptions] = useContext(FontBrowserContexts.SearchTermContext);
   const families = useContext(FontBrowserContexts.FontFamiliesContext);
   return (
-    <ul>
-      {families.map(family => {
-        if (family[1].length > 0) {
-          return <li key={family[0]}>
-            <h3 className='text-lg font-bold'>{family[0]}</h3>
-            <Subfamilies fonts={family[1]} />
-          </li>;
-        }
-      }
-      )}
-    </ul>
+    <>
+      {searchoptions?.pinnedFonts?.length > 0 && <div className='p-5'>
+        <Virtuoso useWindowScroll={true} data={searchoptions?.pinnedFonts ?? []} itemContent={(index, family) => {
+          return (
+            <div key={index}>
+              <h3 className='text-lg font-bold'>{family.name}</h3>
+              <Subfamilies family={family} />
+            </div>
+          );
+        }} />
+      </div>}
+      <Virtuoso useWindowScroll={true} data={families} itemContent={(index, family) => {
+        return (
+          <div key={index}>
+            <h3 className='text-lg font-bold'>{family.name}</h3>
+            <Subfamilies family={family} />
+          </div>
+        );
+      }} />
+    </>
   );
 }
 
-function Subfamilies(props: { fonts: Font[]; }) {
+function Subfamilies(props: { family: Family; }) {
+  const [searchOptions, setSearchOptions] = useContext(FontBrowserContexts.SearchTermContext);
+  const handlePin = (font: [string, Font]) => {
+    const pinnedFonts = searchOptions?.pinnedFonts;
+    const isPinned = pinnedFonts?.some(family => family.name == font[0] && family.fonts.some(f => f.fullName == font[1].fullName)) ?? false;
+    if (isPinned) {
+      setSearchOptions({
+        ...searchOptions, pinnedFonts: pinnedFonts.map(family => {
+          if (family.name == font[0]) {
+            return { ...family, fonts: family.fonts.filter(f => f.fullName != font[1].fullName) };
+          }
+          return family;
+        }).filter(family => family.fonts.length > 0) ?? []
+      });
+    } else {
+      if (pinnedFonts?.map(family => family.name).includes(font[0])) {
+        setSearchOptions({
+          ...searchOptions, pinnedFonts: pinnedFonts.map(family => {
+            if (family.name == font[0]) {
+              return { ...family, fonts: [...family.fonts, font[1]] };
+            }
+            return family;
+          })
+        });
+      } else {
+        setSearchOptions({
+          ...searchOptions, pinnedFonts: [...(pinnedFonts ?? []), { name: font[0], fonts: [font[1]] }]
+        });
+      }
+    }
+  };
   return (
-    <ul className='ml-3'>{props.fonts.map(font => {
-      const fontsWithSameName = props.fonts.filter(x => x.fullName == font.fullName);
+    <ul className='ml-3'>{props.family.fonts.map(font => {
+      const isPinned = searchOptions?.pinnedFonts?.some(x => x.name == props.family.name && x.fonts.some(f => f.fullName == font.fullName)) ?? false;
+      const fontsWithSameName = props.family.fonts.filter(x => x.fullName == font.fullName);
       if (fontsWithSameName.length > 1 && fontsWithSameName.findIndex(x => x.file == font.file) > 0) return;
       const fileList = fontsWithSameName.map(x => x.file);
       const fontType = getFontDescriptorFromExtension(path.parse(font.file).ext);
@@ -49,6 +91,7 @@ function Subfamilies(props: { fonts: Font[]; }) {
                     <h4 title={`${font.fullName}\n${fileList.join('\n')}`}>{font.subfamilyName}</h4>
                   </td>
                   <td width={'60%'}>
+                    <span className='float-right w-6 m-1' onClick={() => handlePin([props.family.name, font])}>{isPinned ? <Unpin /> : <Pin />}</span>
                     <Sample fullName={font.fullName} />
                   </td>
                 </tr>
@@ -63,19 +106,15 @@ function Subfamilies(props: { fonts: Font[]; }) {
       );
     })}
     </ul>);
-}
+};
 
 function Sample(props: { fullName: string; }) {
   const sampleText = useContext(FontBrowserContexts.SampleTextContext);
   const loadedFonts = useContext(FontBrowserContexts.LoadedFontsContext);
   const [activeFeatures] = useContext(FontBrowserContexts.ActiveFeaturesContext);
 
-  if (loadedFonts[1].includes(props.fullName)) {
-    return <div className='text-lg font-bold text-red-700 dark:text-nia-accent'>Could not load font.</div>;
-  }
-
-  if (!loadedFonts[0].includes(props.fullName)) {
-    return <FadeLoader cssOverride={{ display: 'inline' }} />;
+  if (!loadedFonts.includes(props.fullName)) {
+    return <div style={{ maxWidth: 48 }}><Spinner /></div>;
   }
 
   return (

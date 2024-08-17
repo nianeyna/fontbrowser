@@ -10,14 +10,10 @@ import Layout from './layout';
 export default function Index(props: { linkedFonts: string[]; }) {
   const location = useLocation();
 
-  const [families, setFamilies] = useState<[string, Font[]][]>([]);
-  const [filteredFamilies, setFilteredFamilies] = useState<[string, Font[]][]>([]);
-  const [pagedFamilies, setPagedFamilies] = useState<[string, Font[]][]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [lastIndex, setLastIndex] = useState(20);
+  const [families, setFamilies] = useState<Family[]>([]);
+  const [filteredFamilies, setFilteredFamilies] = useState<Family[]>([]);
   const [settings, setSettings] = useState<Settings>(null);
   const [loadedFonts, setLoadedFonts] = useState([]);
-  const [erroredFonts, setErroredFonts] = useState([]);
   const [fontDetails, setFontDetails] = useState<Map<string, FontDetails>>(new Map());
   const [sampleOptions, setSampleOptions] = useState(new FontBrowser.SampleTextOptions(FontBrowser.SampleType.Pangram));
   const [searchOptions, setSearchOptions] = useState<SearchAndFilterOptions>(null);
@@ -42,28 +38,18 @@ export default function Index(props: { linkedFonts: string[]; }) {
       if (settings.searchOptions && !searchOptions) {
         setSearchOptions(settings.searchOptions);
       }
+      if (settings.sampleOptions) {
+        setSampleOptions(settings.sampleOptions);
+      }
     }
   }, [settings]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
-      const scrollHeight = (document.documentElement && document.documentElement.scrollHeight) || document.body.scrollHeight;
-      if (scrollTop + window.innerHeight + 50 >= scrollHeight && !isLoading) {
-        setLastIndex(x => x + 20);
-      }
-    }
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isLoading]);
-
-  useEffect(() => {
     const searchTerm = searchOptions?.searchTerm?.toLowerCase();
-    const newFontList: [string, Font[]][] = families.map(family => {
-      const familyName = family[0];
-      const filteredFonts = family[1]
+    const newFontList: Family[] = families.map(family => {
+      const filteredFonts = family.fonts
         .filter(subfamily => searchTerm
-          ? subfamily.fullName.toLowerCase().includes(searchTerm)
+          ? subfamily.fullName?.toLowerCase().includes(searchTerm)
           : true) // don't filter if there is no search term
         .filter(subfamily => searchOptions?.selectedFeaturesOnly == true && activeFeatures.size > 0
           ? (fontDetails.get(subfamily.fullName)?.features ?? [])
@@ -87,40 +73,22 @@ export default function Index(props: { linkedFonts: string[]; }) {
           }
           return true;
         });
-      return [familyName, filteredFonts];
+      return { name: family.name, fonts: filteredFonts };
     });
-    setDisplayedFonts(newFontList.map(family => family[1]).flat().map(font => font.fullName));
-    setFilteredFamilies(newFontList);
+    setDisplayedFonts(newFontList.flatMap(family => family.fonts).map(font => font.fullName));
+    setFilteredFamilies(newFontList.filter(family => family.fonts.length > 0));
   }, [searchOptions, activeFeatures, families]);
 
   useEffect(() => {
-    setIsLoading(true);
-    setPagedFamilies(filteredFamilies.filter(family => family[1].length > 0).slice(0, lastIndex));
-    setIsLoading(false);
-  }, [filteredFamilies, lastIndex]);
-
-  useEffect(() => {
-    pagedFamilies.forEach(family => family[1].forEach(async font => {
+    families.forEach(family => family.fonts.forEach(async font => {
       if (!font.fullName || props.linkedFonts.includes(font.fullName)) return;
       const details = await window.api.details(font.file);
-      const newMap = new Map(fontDetails.set(font.fullName, details));
-      setFontDetails(newMap);
-      const linkTag = document.createElement('link');
-      linkTag.rel = 'preload';
-      linkTag.href = `font://${font.file}`;
-      linkTag.as = 'font';
-      linkTag.crossOrigin = 'anonymous';
-      document.head.appendChild(linkTag);
+      setFontDetails(new Map(fontDetails.set(font.fullName, details)));
       props.linkedFonts.push(font.fullName);
       const observer = new FontFaceObserver(font.fullName);
-      observer.load(details.characterString[0], 100000).then(function () {
-        setLoadedFonts(x => [...x, font.fullName]);
-      }).catch(function (e) { // todo retries
-        console.log('could not load font ' + font.fullName, e);
-        setErroredFonts(x => [...x, font.fullName]);
-      });
+      loadFont(observer, font, details.characterString[0], setLoadedFonts);
     }));
-  }, [pagedFamilies]);
+  }, [families]);
 
   return (
     <FontBrowserContexts.FontDetailsContext.Provider value={fontDetails}>
@@ -129,10 +97,10 @@ export default function Index(props: { linkedFonts: string[]; }) {
           <FontBrowserContexts.SearchTermContext.Provider value={[searchOptions, setSearchOptions]}>
             <FontBrowserContexts.SampleTypeContext.Provider value={[sampleOptions, setSampleOptions]} >
               <FontBrowserContexts.SampleTextContext.Provider value={sampleText}>
-                <FontBrowserContexts.FontFamiliesContext.Provider value={pagedFamilies}>
+                <FontBrowserContexts.FontFamiliesContext.Provider value={filteredFamilies}>
                   <FontBrowserContexts.FeatureSpecificationContext.Provider value={features}>
                     <FontBrowserContexts.SettingsContext.Provider value={[settings, setSettings]}>
-                      <FontBrowserContexts.LoadedFontsContext.Provider value={[loadedFonts, erroredFonts]}>
+                      <FontBrowserContexts.LoadedFontsContext.Provider value={loadedFonts}>
                         <Layout />
                       </FontBrowserContexts.LoadedFontsContext.Provider>
                     </FontBrowserContexts.SettingsContext.Provider>
@@ -145,6 +113,14 @@ export default function Index(props: { linkedFonts: string[]; }) {
       </FontBrowserContexts.DisplayedFontsContext.Provider>
     </FontBrowserContexts.FontDetailsContext.Provider>
   );
+}
+
+function loadFont(observer: FontFaceObserver, font: Font, character: string, setLoadedFonts: React.Dispatch<React.SetStateAction<any[]>>) {
+  observer.load(character, 100000).then(function () {
+    setLoadedFonts(x => [...x, font.fullName]);
+  }).catch(function (e) {
+    loadFont(observer, font, character, setLoadedFonts);
+  });
 }
 
 function getCodePointsFromString(searchString: string): number[] {

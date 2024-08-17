@@ -8,11 +8,11 @@ import Settings from './settings';
 declare global {
   interface Window {
     'api': {
-      families: () => Promise<[string, Font[]][]>,
+      families: () => Promise<Family[]>,
       details: (fileName: string) => Promise<FontDetails>,
       getSettings: () => Promise<Settings>,
-      setSettings: (settings: Settings) => Promise<void>
-    }
+      setSettings: (settings: Settings) => Promise<void>;
+    };
   }
 }
 
@@ -29,7 +29,7 @@ const router = createHashRouter([
       {
         path: 'settings',
         element: <Settings />
-      }      
+      }
     ]
   },
 ]);
