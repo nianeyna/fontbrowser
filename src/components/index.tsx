@@ -116,10 +116,12 @@ export default function Index(props: { linkedFonts: string[]; }) {
 }
 
 function loadFont(observer: FontFaceObserver, font: Font, character: string, setLoadedFonts: React.Dispatch<React.SetStateAction<any[]>>) {
-  observer.load(character, 100000).then(function () {
+  const timeout = 300000; // wait for 5 minutes before giving up
+  observer.load(character, timeout).then(function () {
     setLoadedFonts(x => [...x, font.fullName]);
   }).catch(function (e) {
-    loadFont(observer, font, character, setLoadedFonts);
+    console.log('Font failed to load: ' + font.fullName);
+    console.log(e);
   });
 }
 

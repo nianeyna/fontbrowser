@@ -18,6 +18,8 @@ The zoom in keyboard shortcut listed in the "View" menu doesn't work unless you 
 
 The button to save your search settings as default doesn't give any feedback that it worked.
 
+On linux only, if you have a font file with a mixed-case file extension (like .Ttf instead of either .TTF or .ttf) that font will not be included in the font list.
+
 # ok that's great but how do I download it
 
 Click on the latest release in the right-hand sidebar and download the correct file for your OS:
