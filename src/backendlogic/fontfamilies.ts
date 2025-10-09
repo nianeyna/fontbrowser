@@ -10,7 +10,7 @@ export async function getFontFamilies(fontFolders: FontFolder[]): Promise<Family
 
 export async function loadFontFeatures(filePath: string): Promise<FontDetails> {
   try {
-    const font = await fontkit.open(filePath);
+    const font = await fontkit.open(filePath) as fontkit.Font;
     const features = [...new Set(font.availableFeatures)]; // remove duplicates
     const characters = font.characterSet;
     // may not be necessary to do this on the backend... but also no reason not to afaik
@@ -41,7 +41,7 @@ async function getFonts(fontFolders: FontFolder[]): Promise<Map<string, fontkit.
     }));
     await Promise.all(paths.map(async (element) => {
       try {
-        const font = await fontkit.open(element);
+        const font = await fontkit.open(element) as fontkit.Font;
         const filePath = element.replaceAll('\\', '/');
         fonts.set(filePath, font);
       }

@@ -15,7 +15,7 @@ export default function Home() {
   };
   return (
     <>
-      <div className='border rounded p-2 mb-3'>
+      <div className='border rounded-sm p-2 mb-3'>
         <SearchOptions />
         <SampleOptions />
         <button onClick={handleSetDefault}>Set these options as default</button>

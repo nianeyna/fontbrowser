@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client';
-import { createHashRouter, RouterProvider } from 'react-router-dom';
+import { HashRouter, Route, Routes } from 'react-router';
 import Index from '.';
 import ErrorPage from './error';
 import Home from './home';
@@ -16,22 +16,13 @@ declare global {
   }
 }
 
-const router = createHashRouter([
-  {
-    path: '/',
-    element: <Index linkedFonts={[]} />,
-    errorElement: <ErrorPage />,
-    children: [
-      {
-        path: '/',
-        element: <Home />
-      },
-      {
-        path: 'settings',
-        element: <Settings />
-      }
-    ]
-  },
-]);
-
-createRoot(document.getElementById('root')).render(<RouterProvider router={router} />);
+createRoot(document.getElementById('root')).render(
+<HashRouter>
+  <Routes>
+    <Route path='/' element={<Index linkedFonts={[]} />} errorElement={<ErrorPage />}>
+      <Route path='settings' element={<Settings />} />
+      <Route path='/' element={<Home />} />
+    </Route>
+  </Routes>
+</HashRouter>
+);

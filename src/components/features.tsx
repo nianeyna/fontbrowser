@@ -1,5 +1,5 @@
-import { Disclosure } from '@headlessui/react';
-import { useContext, useMemo } from 'react';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
+import { JSX, useContext, useMemo } from 'react';
 import { FontBrowserContexts } from './contexts';
 import FontBrowserTransition from './transition';
 
@@ -26,11 +26,11 @@ export function AllFeatures(): JSX.Element {
           <tr>
             <td colSpan={2}>
               <FontBrowserTransition additionalProps={{as: 'table', width: '100%'}} children={
-                <Disclosure.Panel as='tbody'>
+                <DisclosurePanel as='tbody'>
                   {(featureList?.length ?? 0) > 0 && featureList?.map(x =>
                     <FeatureCheckbox key={x} feature={x} context='fontbrowser-all-features' />) ||
                     <tr><td>No features available</td></tr>}
-                </Disclosure.Panel>
+                </DisclosurePanel>
               } />
             </td>
           </tr>
@@ -47,19 +47,19 @@ export function FontFeatures(props: { fullName: string; }): JSX.Element {
     <Disclosure>
       <tr>
         <td>
-          <Disclosure.Button className='align-top'>
+          <DisclosureButton className='align-top'>
             Features
-          </Disclosure.Button>
+          </DisclosureButton>
         </td>
       </tr>
       <tr>
         <td colSpan={2}>
           <FontBrowserTransition additionalProps={{as: 'table', width: '100%'}} children={
-            <Disclosure.Panel as='tbody'>
+            <DisclosurePanel as='tbody'>
               {(featureList?.length ?? 0) > 0 && featureList?.map(x =>
                 <FeatureCheckbox key={x} feature={x} context={props.fullName} />) ||
                 <tr><td>No features available</td></tr>}
-            </Disclosure.Panel>
+            </DisclosurePanel>
           } />
         </td>
       </tr>
@@ -103,32 +103,32 @@ function FeatureCheckbox(props: { feature: string, context: string; }): JSX.Elem
           <td className='align-top'>
             <div className='flex flex-row justify-between'>
               <label>
-                <div className='inline rounded m-1 border dark:border-none dark:bg-nia-primary'>
-                  <label className='toggle-box rounded px-1'>
+                <div className='inline rounded-sm m-1 border dark:border-none dark:bg-nia-primary'>
+                  <label className='toggle-box rounded-sm px-1'>
                     <input className='hidden' type='radio' name={`feature-${props.feature}-${props.context}`} onChange={handleChanged} value='off' checked={checked == 'off'} />
                     <span aria-label='off'>✗</span>
                   </label>
-                  <label className='toggle-box rounded px-1'>
+                  <label className='toggle-box rounded-sm px-1'>
                     <input className='hidden' type='radio' name={`feature-${props.feature}-${props.context}`} onChange={handleChanged} value='default' checked={checked == 'default'} />
                     <span aria-label='default'>○</span>
                   </label>
-                  <label className='toggle-box rounded px-1'>
+                  <label className='toggle-box rounded-sm px-1'>
                     <input className='hidden' type='radio' name={`feature-${props.feature}-${props.context}`} onChange={handleChanged} value='on' checked={checked == 'on'} />
                     <span aria-label='on'>✓</span>
                   </label>
                 </div>
                 <span className='pl-1'>{featureInfo.friendlyName}</span>
               </label>
-              <Disclosure.Button>
+              <DisclosureButton>
                 info
-              </Disclosure.Button>
+              </DisclosureButton>
             </div>
           </td>
           <td width={'60%'}>
             <FontBrowserTransition children={
-              <Disclosure.Panel
+              <DisclosurePanel
                 dangerouslySetInnerHTML={{ __html: featureInfo.function ?? 'No available information' }}>
-              </Disclosure.Panel>
+              </DisclosurePanel>
             } />
           </td>
         </tr>

@@ -1,4 +1,4 @@
-import { Combobox } from '@headlessui/react';
+import { Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions } from '@headlessui/react';
 import { useContext, useMemo } from 'react';
 import { FontBrowserContexts } from './contexts';
 import FontBrowserTransition from './transition';
@@ -21,17 +21,17 @@ export default function TagSelect(props: {
     <Combobox value={props.tagName} onChange={props.setTagName}>
       <div className='flex'>
         <div className='w-max'>
-          <Combobox.Button as='div'>
-            <Combobox.Input onChange={(e) => props.setTagName(e.target.value)} />
-          </Combobox.Button>
+          <ComboboxButton as='div'>
+            <ComboboxInput onChange={(e) => props.setTagName(e.target.value)} />
+          </ComboboxButton>
           <FontBrowserTransition children={
-            <Combobox.Options static style={{ minWidth: 'calc(100% - .5rem)' }} className='w-0 max-h-40 m-1 px-1 overflow-auto rounded border dark:border-none dark:bg-nia-primary'>
+            <ComboboxOptions static style={{ minWidth: 'calc(100% - .5rem)' }} className='w-0 max-h-40 m-1 px-1 overflow-auto rounded-sm border dark:border-none dark:bg-nia-primary'>
               {filteredTagList.map(tag => (
-                <Combobox.Option key={tag} value={tag}>
+                <ComboboxOption key={tag} value={tag}>
                   {tag}
-                </Combobox.Option>
+                </ComboboxOption>
               ))}
-            </Combobox.Options>} />
+            </ComboboxOptions>} />
         </div>
         <button className='self-start' onClick={props.handleClick}>Add</button>
       </div>

@@ -1,4 +1,4 @@
-import { Disclosure } from '@headlessui/react';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { useContext, useState } from 'react';
 import { FontBrowserContexts } from './contexts';
 import TagSelect from './tagselect';
@@ -36,15 +36,15 @@ export default function TagAdd(props: { fullName: string; }) {
     <tr>
       <Disclosure>
         <td className='align-top'>
-          <Disclosure.Button>
+          <DisclosureButton>
             Add tag
-          </Disclosure.Button>
+          </DisclosureButton>
         </td>
         <td width={'60%'}>
           <FontBrowserTransition children={
-            <Disclosure.Panel>
+            <DisclosurePanel>
               <TagSelect tagName={tagName} setTagName={setTagName} handleClick={handleAdd} />
-            </Disclosure.Panel>
+            </DisclosurePanel>
           } />
         </td>
       </Disclosure>

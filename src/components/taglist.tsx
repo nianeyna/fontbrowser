@@ -1,4 +1,4 @@
-import { Disclosure } from '@headlessui/react';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { useContext } from 'react';
 import { FontBrowserContexts } from './contexts';
 import FontBrowserTransition from './transition';
@@ -19,20 +19,20 @@ export default function TagList(props: { fullName: string; }) {
       <tr>
         <Disclosure>
           <td className='align-top'>
-            <Disclosure.Button>
+            <DisclosureButton>
               Tags
-            </Disclosure.Button>
+            </DisclosureButton>
           </td>
           <td width={'60%'}>
             <FontBrowserTransition children={
-              <Disclosure.Panel>
+              <DisclosurePanel>
                 {existingTags.map(tag =>
                   <span key={tag}>
                     “{tag}”
                     <button onClick={(e) => handleClick(e, tag)}>x</button>
                   </span>
                 )}
-              </Disclosure.Panel>
+              </DisclosurePanel>
             } />
           </td>
         </Disclosure>

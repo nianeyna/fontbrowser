@@ -1,4 +1,4 @@
-import { BrowserWindow, Menu, app, ipcMain, nativeTheme, protocol } from 'electron';
+import { BrowserWindow, Menu, app, ipcMain, nativeTheme, net, protocol } from 'electron';
 import contextMenu from 'electron-context-menu';
 import ElectronStore from 'electron-store';
 import url from 'url';
@@ -54,9 +54,8 @@ app.on('activate', () => {
 });
 
 app.whenReady().then(() => {
-  protocol.registerFileProtocol('font', (request, callback) => {
-    const filePath = url.fileURLToPath('file://' + request.url.slice('font://'.length));
-    callback(filePath);
+  protocol.handle('font', async (request) => {
+    return await net.fetch(url.pathToFileURL(request.url.slice('font://'.length)).toString());
   });
 });
 

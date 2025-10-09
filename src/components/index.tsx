@@ -1,6 +1,6 @@
 import FontFaceObserver from 'fontfaceobserver';
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import getSampleText from '../frontendlogic/samples';
 import featureSpecification from '../resource/features.json';
 import { FontBrowser } from '../types/defs';

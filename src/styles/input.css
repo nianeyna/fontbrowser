@@ -1,27 +1,32 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --color-nia-body: #13424d;
+  --color-nia-text: #ffffff;
+  --color-nia-primary: #103740;
+  --color-nia-accent: #ff8c00;
+}
 
 html {
   font-size: 16pt;
 }
 
 input {
-  @apply border rounded m-1 px-1 accent-nia-body dark:bg-nia-primary dark:border-nia-text dark:accent-nia-accent
+  @apply border rounded-sm m-1 px-1 accent-nia-body dark:bg-nia-primary dark:border-nia-text dark:accent-nia-accent
 }
 
 input[type=text] {
-  @apply focus:outline-nia-body dark:focus:outline-none dark:focus:border-nia-accent
+  @apply focus:outline-nia-body dark:focus:outline-hidden dark:focus:border-nia-accent
 }
 
 textarea {
-  @apply rounded resize m-1 px-1 focus:outline-nia-body dark:focus:outline-none dark:bg-nia-primary border dark:border-nia-text  dark:focus:border-nia-accent
+  @apply rounded-sm resize m-1 px-1 focus:outline-nia-body dark:focus:outline-hidden dark:bg-nia-primary border dark:border-nia-text  dark:focus:border-nia-accent
 }
 
 button,[type=button],[type=submit] {
-  @apply rounded m-1 px-1 border dark:border-none dark:bg-nia-primary
+  @apply rounded-sm m-1 px-1 border dark:border-none dark:bg-nia-primary
 }
 
 .toggle-box:has(input:checked) {
-  @apply outline outline-1 outline-nia-body dark:outline-none dark:shadow-inner dark:shadow-nia-text
+  @apply outline-solid outline-1 outline-nia-body dark:outline-hidden dark:shadow-inner dark:shadow-nia-text
 }

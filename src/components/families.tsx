@@ -1,6 +1,6 @@
-import { Disclosure } from '@headlessui/react';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import path from 'path';
-import { useContext, useState } from 'react';
+import { JSX, useContext, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { FontBrowser } from '../types/defs';
 import { FontBrowserContexts } from './contexts';
@@ -83,7 +83,7 @@ function Subfamilies(props: { family: Family; }) {
             src: url('font://${font.file}') format(${fontType});
           }`}
           </style>
-          <div className='border rounded p-1 my-1'>
+          <div className='border rounded-sm p-1 my-1'>
             <table width={'100%'}>
               <tbody>
                 <tr>
@@ -141,18 +141,18 @@ function CodePoints(props: { fullName: string; }): JSX.Element {
     <tr>
       <Disclosure>
         <td className='align-top'>
-          <Disclosure.Button onClick={handleClick}>
+          <DisclosureButton onClick={handleClick}>
             View all code points
-          </Disclosure.Button>
+          </DisclosureButton>
         </td>
         <td>
           <FontBrowserTransition children={
-            <Disclosure.Panel className='text-lg' style={{
+            <DisclosurePanel className='text-lg' style={{
               fontFamily: `'${props.fullName}'`,
               fontFeatureSettings: Array.from(activeFeatures.entries()).map(x => `'${x[0]}' ${x[1] ? 'on' : 'off'}`).join(', ')
             }}>
               {characterString}
-            </Disclosure.Panel>
+            </DisclosurePanel>
           } />
         </td>
       </Disclosure>
