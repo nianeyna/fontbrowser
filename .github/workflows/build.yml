@@ -1,6 +1,9 @@
 name: build
 on: push
 
+permissions:
+  contents: read
+
 jobs:
   build_on_linux:
     runs-on: ubuntu-latest
