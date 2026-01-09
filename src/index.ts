@@ -55,7 +55,13 @@ app.on('activate', () => {
 
 app.whenReady().then(() => {
   protocol.handle('font', async (request) => {
-    return await net.fetch(url.pathToFileURL(request.url.slice('font://'.length)).toString());
+    let fontPath = request.url.slice('font://'.length);
+
+    if (process.platform === 'win32') {
+      fontPath = fontPath.replace(/\//g, '\\');
+    }
+
+    return await net.fetch(url.pathToFileURL(fontPath).toString());
   });
 });
 
