@@ -25,7 +25,7 @@ On linux only, if you have a font file with a mixed-case file extension (like .T
 Click on the latest release in the right-hand sidebar and download the correct file for your OS:
 
 - Windows: the one that ends with .exe
-- Mac: the one that has "darwin" in the name
+- Mac: the one that ends with .dmg
 - Linux (Debian-based distros): the one that ends with .deb
 - Linux (Redhat-based distros): the one that ends with .rpm
 

@@ -1,9 +1,9 @@
-import type { ForgeConfig } from '@electron-forge/shared-types';
-import { MakerSquirrel } from '@electron-forge/maker-squirrel';
-import { MakerZIP } from '@electron-forge/maker-zip';
 import { MakerDeb } from '@electron-forge/maker-deb';
+import { MakerDMG } from '@electron-forge/maker-dmg';
 import { MakerRpm } from '@electron-forge/maker-rpm';
+import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { WebpackPlugin } from '@electron-forge/plugin-webpack';
+import type { ForgeConfig } from '@electron-forge/shared-types';
 
 import { mainConfig } from './webpack.main.config';
 import { rendererConfig } from './webpack.renderer.config';
@@ -11,7 +11,7 @@ import { rendererConfig } from './webpack.renderer.config';
 const config: ForgeConfig = {
   packagerConfig: {},
   rebuildConfig: {},
-  makers: [new MakerSquirrel({}), new MakerZIP({}, ['darwin']), new MakerRpm({}), new MakerDeb({})],
+  makers: [new MakerSquirrel({}), new MakerDMG({}), new MakerDeb({}), new MakerRpm({})],
   plugins: [
     new WebpackPlugin({
       devContentSecurityPolicy: `default-src 'self'; font-src font:; script-src 'self'; style-src 'self' 'unsafe-inline'`,
