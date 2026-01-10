@@ -80,7 +80,7 @@ function Subfamilies(props: { family: Family; }) {
           <style>
             {`@font-face {
             font-family: '${font.fullName}';
-            src: url('font://${font.file}') format(${fontType});
+            src: url('font://${encodeURIComponent(font.file)}') format(${fontType});
           }`}
           </style>
           <div className='border rounded-sm p-1 my-1'>
